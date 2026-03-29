@@ -271,7 +271,7 @@ button {
 .marker-color-input { width: 32px; height: 32px; padding: 1px; border-radius: 4px; }
 .marker-delete-btn { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 14px; padding: 4px; border-radius: 4px; }
 .marker-delete-btn:hover { color: var(--text2); }
-.marker-card-pos { display: grid; grid-template-columns: 20px 1fr 30px 20px 1fr 30px; gap: 4px; align-items: center; }
+.marker-card-pos { display: grid; grid-template-columns: 20px 1fr 34px; gap: 4px; align-items: center; }
 .marker-card-pos label { font-size: 10px; color: var(--text3); text-align: center; }
 .marker-card-pos .marker-x-val, .marker-card-pos .marker-y-val { font-size: 10px; color: var(--text2); text-align: right; }
 #addMarkerBtn { width: 100%; }
@@ -351,20 +351,17 @@ button {
       </select>
     </div>
     <button class="btn-primary" id="generateBtn">Generate</button>
-    <button class="btn-secondary" id="removeLabelsBtn" style="width:100%;margin-top:6px;display:none;" title="Uses AI (Studio) to erase map labels — takes ~10s">✦ Remove Labels</button>
   </div>
 
   <!-- Style -->
   <div class="section">
     <div class="section-title">Style</div>
     <div class="style-grid" id="styleGrid"></div>
-    <div class="check-row" style="margin-top:8px">
+    <div id="noLabelsRow" class="check-row" style="margin-top:8px;display:none;">
       <input type="checkbox" id="noLabelsCheck">
-      <label for="noLabelsCheck">No labels (clean map)</label>
+      <label for="noLabelsCheck">Hide labels</label>
     </div>
-    <div id="noLabelsWarning" style="display:none; font-size:10px; color:var(--text3); margin-top:4px; padding:4px 6px; background:var(--surface2); border-radius:4px; line-height:1.4;">
-      ⚠ This style doesn't have a no-label variant. Use Positron, Voyager, or Dark for label-free maps.
-    </div>
+    <div id="noLabelsWarning" style="display:none"></div>
   </div>
 
   <!-- Canvas -->
@@ -485,6 +482,15 @@ button {
         <div class="row">
           <label>Size</label><input type="number" id="titleSize" value="36" min="8" max="120">
           <label>Color</label><input type="color" id="titleColor" value="#333333">
+          <label style="margin-left:6px">Opacity</label><input type="range" id="titleOpacity" min="0" max="1" step="0.05" value="1" style="width:60px"><span id="titleOpacityVal" style="font-size:11px;min-width:24px;">1.0</span>
+        </div>
+        <div class="row" style="align-items:center;gap:6px;flex-wrap:wrap;">
+          <label class="check-row" style="margin:0;gap:4px;"><input type="checkbox" id="titleGlowEnable"> <span style="font-size:11px;">Glow</span></label>
+          <input type="color" id="titleGlowColor" value="#ffffff" style="width:36px;height:26px;padding:2px;">
+          <input type="range" id="titleGlowSize" min="0" max="40" step="1" value="8" style="width:60px;" title="Blur radius">
+          <span id="titleGlowSizeVal" style="font-size:11px;min-width:20px;">8</span>
+          <input type="range" id="titleGlowOpacity" min="0" max="1" step="0.05" value="0.8" style="width:50px;" title="Opacity">
+          <span id="titleGlowOpacityVal" style="font-size:11px;min-width:24px;">0.8</span>
         </div>
         <div class="row">
           <label>Font</label>
@@ -531,6 +537,15 @@ button {
         <div class="row">
           <label>Size</label><input type="number" id="subtitleSize" value="14" min="6" max="60">
           <label>Color</label><input type="color" id="subtitleColor" value="#888888">
+          <label style="margin-left:6px">Opacity</label><input type="range" id="subtitleOpacity" min="0" max="1" step="0.05" value="1" style="width:60px"><span id="subtitleOpacityVal" style="font-size:11px;min-width:24px;">1.0</span>
+        </div>
+        <div class="row" style="align-items:center;gap:6px;flex-wrap:wrap;">
+          <label class="check-row" style="margin:0;gap:4px;"><input type="checkbox" id="subtitleGlowEnable"> <span style="font-size:11px;">Glow</span></label>
+          <input type="color" id="subtitleGlowColor" value="#ffffff" style="width:36px;height:26px;padding:2px;">
+          <input type="range" id="subtitleGlowSize" min="0" max="40" step="1" value="6" style="width:60px;" title="Blur radius">
+          <span id="subtitleGlowSizeVal" style="font-size:11px;min-width:20px;">6</span>
+          <input type="range" id="subtitleGlowOpacity" min="0" max="1" step="0.05" value="0.8" style="width:50px;" title="Opacity">
+          <span id="subtitleGlowOpacityVal" style="font-size:11px;min-width:24px;">0.8</span>
         </div>
         <div class="row">
           <label>Font</label>
@@ -580,6 +595,15 @@ button {
         <div class="row">
           <label>Size</label><input type="number" id="coordsSize" value="12" min="6" max="60">
           <label>Color</label><input type="color" id="coordsColor" value="#888888">
+          <label style="margin-left:6px">Opacity</label><input type="range" id="coordsOpacity" min="0" max="1" step="0.05" value="1" style="width:60px"><span id="coordsOpacityVal" style="font-size:11px;min-width:24px;">1.0</span>
+        </div>
+        <div class="row" style="align-items:center;gap:6px;flex-wrap:wrap;">
+          <label class="check-row" style="margin:0;gap:4px;"><input type="checkbox" id="coordsGlowEnable"> <span style="font-size:11px;">Glow</span></label>
+          <input type="color" id="coordsGlowColor" value="#ffffff" style="width:36px;height:26px;padding:2px;">
+          <input type="range" id="coordsGlowSize" min="0" max="40" step="1" value="6" style="width:60px;" title="Blur radius">
+          <span id="coordsGlowSizeVal" style="font-size:11px;min-width:20px;">6</span>
+          <input type="range" id="coordsGlowOpacity" min="0" max="1" step="0.05" value="0.8" style="width:50px;" title="Opacity">
+          <span id="coordsGlowOpacityVal" style="font-size:11px;min-width:24px;">0.8</span>
         </div>
         <div class="row">
           <label>Font</label>
@@ -645,7 +669,13 @@ button {
 
   <!-- Process -->
   <div class="section">
-    <div class="section-title">Process</div>
+    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
+      Process
+      <label class="check-row" style="margin:0;font-size:11px;gap:5px;">
+        <input type="checkbox" id="procEnable"> <span style="color:var(--text2)">Enable</span>
+      </label>
+    </div>
+    <div id="procBody" style="display:none;">
     <div class="row">
       <label>Contrast</label>
       <input type="range" id="procContrast" min="0.5" max="3" step="0.05" value="1" style="flex:1">
@@ -672,6 +702,7 @@ button {
       <label class="check-row" style="margin:0;flex:1"><input type="checkbox" id="procInvert"> <span>Invert</span></label>
     </div>
     <button class="btn-secondary" id="procApplyBtn" style="width:100%;margin-top:8px;">Apply &amp; Regenerate</button>
+    </div><!-- end procBody -->
   </div>
 
   <!-- Markers -->
@@ -684,8 +715,21 @@ button {
   <!-- Download -->
   <div class="section">
     <div class="section-title">Download</div>
-    <div id="download-bar">
-      <button class="btn-primary" id="downloadBtn" disabled>&#11015; PNG</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px;">
+      <button class="dl-size-btn" data-size="print" disabled style="font-size:10px;padding:7px 4px;border-radius:8px;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text2);cursor:not-allowed;">
+        🖨 Print<br><span style="font-size:9px;opacity:0.6;">24×36" · 250dpi</span>
+      </button>
+      <button class="dl-size-btn" data-size="high" disabled style="font-size:10px;padding:7px 4px;border-radius:8px;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text2);cursor:not-allowed;">
+        ⬆ High<br><span style="font-size:9px;opacity:0.6;">4800px · 200dpi</span>
+      </button>
+      <button class="dl-size-btn" data-size="medium" disabled style="font-size:10px;padding:7px 4px;border-radius:8px;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text2);cursor:not-allowed;">
+        ▪ Medium<br><span style="font-size:9px;opacity:0.6;">2400px · screen</span>
+      </button>
+      <button class="dl-size-btn" data-size="low" disabled style="font-size:10px;padding:7px 4px;border-radius:8px;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text2);cursor:not-allowed;">
+        ▾ Low<br><span style="font-size:9px;opacity:0.6;">1200px · web</span>
+      </button>
+    </div>
+    <div id="download-bar" style="display:flex;gap:5px;">
       <button class="btn-secondary" id="copyLinkBtn">&#128279; Copy Link</button>
       <button class="btn-secondary" id="resetBtn" style="opacity:0.6">&#8635; Reset</button>
     </div>
@@ -773,7 +817,7 @@ button {
     mt_basic:     { name:"Basic",      swatch:["#f4f0e8","#b8d4e4","#d8e8c8","#ece4d8"] },
     // Artistic
     mt_aquarelle: { name:"Aquarelle",  swatch:["#f0e8d4","#c8d4b8","#d8c8a8","#e8d8bc"] },
-    mt_toner:     { name:"Toner",      swatch:["#000000","#ffffff","#333333","#888888"], clean:"mt_toner_bg" },
+    mt_toner:     { name:"Toner",      swatch:["#000000","#ffffff","#333333","#888888"] },
     // Colorful/rich
     mt_streets:   { name:"Streets",    swatch:["#f8f4f0","#aad3df","#d4e8c0","#f0e8d8"] },
     mt_outdoor:   { name:"Outdoor",    swatch:["#f0ece4","#8bbcd4","#c8d4a0","#e8d8c0"] },
@@ -792,7 +836,7 @@ button {
   const NOLABEL_STYLES = {
     positron_nolabels: true,
     voyager_nolabels:  true,
-    mt_dark_nolabels:  true,
+    // mt_dark_nolabels: not a real style (placeholder)
   };
 
   // ══════════════════════════════════════════════════════════════
@@ -804,14 +848,23 @@ button {
   const radiusSelect = $("radiusSelect"), generateBtn = $("generateBtn");
   const procContrast = $("procContrast"), procBright = $("procBright"), procSat = $("procSat"), procBlackPt = $("procBlackPt");
   const procGray = $("procGray"), procInvert = $("procInvert"), procNorm = $("procNorm");
+  const procEnable = $("procEnable");
+  procEnable.onchange = () => {
+    $("procBody").style.display = procEnable.checked ? "" : "none";
+    saveToLocalStorage();
+  };
 
   // Process slider labels
-  procContrast.oninput = () => { $("procContrastVal").textContent = parseFloat(procContrast.value).toFixed(1) + "×"; };
-  procBright.oninput   = () => { $("procBrightVal").textContent   = parseFloat(procBright.value).toFixed(1) + "×"; };
-  procBlackPt.oninput  = () => { $("procBlackPtVal").textContent  = procBlackPt.value; };
-  procSat.oninput      = () => { $("procSatVal").textContent      = parseFloat(procSat.value).toFixed(1) + "×"; };
+  procContrast.oninput = () => { $("procContrastVal").textContent = parseFloat(procContrast.value).toFixed(1) + "×"; saveToLocalStorage(); };
+  procBright.oninput   = () => { $("procBrightVal").textContent   = parseFloat(procBright.value).toFixed(1) + "×"; saveToLocalStorage(); };
+  procBlackPt.oninput  = () => { $("procBlackPtVal").textContent  = procBlackPt.value; saveToLocalStorage(); };
+  procSat.oninput      = () => { $("procSatVal").textContent      = parseFloat(procSat.value).toFixed(1) + "×"; saveToLocalStorage(); };
+  procNorm.onchange    = () => saveToLocalStorage();
+  procGray.onchange    = () => saveToLocalStorage();
+  procInvert.onchange  = () => saveToLocalStorage();
 
   function getProcParams() {
+    if (!procEnable.checked) return { contrast:1, brightness:1, saturation:1, blackPoint:0, normalize:false, grayscale:false, invert:false };
     return {
       contrast:   parseFloat(procContrast.value),
       brightness: parseFloat(procBright.value),
@@ -838,7 +891,7 @@ button {
 
   // Gradient
   const gradEnable = $("gradEnable"), gradOpts = $("gradOpts");
-  const gradDir = $("gradDir"), gradC1 = $("gradC1"), gradO1 = $("gradO1");
+  const gradC1 = $("gradC1"), gradO1 = $("gradO1");
   const gradC2 = $("gradC2"), gradO2 = $("gradO2");
   const gradReach = $("gradReach"), gradCurve = $("gradCurve");
   let gradEdge = "bottom";
@@ -858,13 +911,16 @@ button {
   });
 
   // Text elements
-  const titleInput = $("titleInput"), titleSize = $("titleSize"), titleColor = $("titleColor");
+  const titleInput = $("titleInput"), titleSize = $("titleSize"), titleColor = $("titleColor"), titleOpacity = $("titleOpacity");
+  const titleGlowEnable = $("titleGlowEnable"), titleGlowColor = $("titleGlowColor"), titleGlowSize = $("titleGlowSize"), titleGlowOpacity = $("titleGlowOpacity");
   const titleWeight = $("titleWeight"), titleSpacing = $("titleSpacing");
   const titleX = $("titleX"), titleY = $("titleY"), titleUC = $("titleUC");
-  const subtitleInput = $("subtitleInput"), subtitleSize = $("subtitleSize"), subtitleColor = $("subtitleColor");
+  const subtitleInput = $("subtitleInput"), subtitleSize = $("subtitleSize"), subtitleColor = $("subtitleColor"), subtitleOpacity = $("subtitleOpacity");
+  const subtitleGlowEnable = $("subtitleGlowEnable"), subtitleGlowColor = $("subtitleGlowColor"), subtitleGlowSize = $("subtitleGlowSize"), subtitleGlowOpacity = $("subtitleGlowOpacity");
   const subtitleWeight = $("subtitleWeight"), subtitleSpacing = $("subtitleSpacing");
   const subtitleX = $("subtitleX"), subtitleY = $("subtitleY"), subtitleUC = $("subtitleUC");
-  const coordsInput = $("coordsInput"), coordsSize = $("coordsSize"), coordsColor = $("coordsColor");
+  const coordsInput = $("coordsInput"), coordsSize = $("coordsSize"), coordsColor = $("coordsColor"), coordsOpacity = $("coordsOpacity");
+  const coordsGlowEnable = $("coordsGlowEnable"), coordsGlowColor = $("coordsGlowColor"), coordsGlowSize = $("coordsGlowSize"), coordsGlowOpacity = $("coordsGlowOpacity");
   const coordsWeight = $("coordsWeight"), coordsSpacing = $("coordsSpacing");
   const coordsX = $("coordsX"), coordsY = $("coordsY"), coordsUCEl = $("coordsUC");
   const showCoords = $("showCoords");
@@ -968,7 +1024,7 @@ button {
   const markerListEl = $("markerList");
 
   // Download
-  const downloadBtn = $("downloadBtn"), copyLinkBtn = $("copyLinkBtn");
+  const copyLinkBtn = $("copyLinkBtn");
 
   // Preview DOM
   const previewWrapper = $("preview-wrapper");
@@ -1003,13 +1059,15 @@ button {
   });
 
   // No-labels checkbox
-  document.getElementById("noLabelsCheck").onchange = () => { updateNoLabelsWarning(); saveToLocalStorage(); };
+  document.getElementById("noLabelsCheck").onchange = () => {
+    updateNoLabelsWarning();
+    saveToLocalStorage();
+    if (mapLoaded) generateMap(); // re-fetch with correct nolabels style
+  };
 
   function updateNoLabelsWarning() {
     const hasClean = STYLES[currentStyle] && STYLES[currentStyle].clean;
-    const row = document.getElementById("noLabelsCheck").closest(".check-row");
-    row.style.display = hasClean ? "" : "none";
-    document.getElementById("noLabelsWarning").style.display = "none";
+    $("noLabelsRow").style.display = hasClean ? "" : "none";
   }
 
   // Also update warning when style changes
@@ -1091,6 +1149,15 @@ button {
   gradEnable.onchange = () => { gradOpts.style.display = gradEnable.checked ? "" : "none"; updatePreview(); };
   gradO1.oninput = () => { $("gradO1Val").textContent = parseFloat(gradO1.value).toFixed(2); updatePreview(); saveToLocalStorage(); };
   gradO2.oninput = () => { $("gradO2Val").textContent = parseFloat(gradO2.value).toFixed(2); updatePreview(); saveToLocalStorage(); };
+  titleOpacity.oninput    = () => { $("titleOpacityVal").textContent    = parseFloat(titleOpacity.value).toFixed(2); };
+  subtitleOpacity.oninput = () => { $("subtitleOpacityVal").textContent = parseFloat(subtitleOpacity.value).toFixed(2); };
+  coordsOpacity.oninput   = () => { $("coordsOpacityVal").textContent   = parseFloat(coordsOpacity.value).toFixed(2); };
+  titleGlowSize.oninput    = () => { $("titleGlowSizeVal").textContent    = titleGlowSize.value; };
+  titleGlowOpacity.oninput = () => { $("titleGlowOpacityVal").textContent = parseFloat(titleGlowOpacity.value).toFixed(2); };
+  subtitleGlowSize.oninput    = () => { $("subtitleGlowSizeVal").textContent    = subtitleGlowSize.value; };
+  subtitleGlowOpacity.oninput = () => { $("subtitleGlowOpacityVal").textContent = parseFloat(subtitleGlowOpacity.value).toFixed(2); };
+  coordsGlowSize.oninput    = () => { $("coordsGlowSizeVal").textContent    = coordsGlowSize.value; };
+  coordsGlowOpacity.oninput = () => { $("coordsGlowOpacityVal").textContent = parseFloat(coordsGlowOpacity.value).toFixed(2); };
   gradReach.oninput = () => { $("gradReachVal").textContent = gradReach.value + "%"; updatePreview(); saveToLocalStorage(); };
 
   // ══════════════════════════════════════════════════════════════
@@ -1147,7 +1214,7 @@ button {
   // ══════════════════════════════════════════════════════════════
   $("addMarkerBtn").onclick = () => {
     openIconPicker(ic => {
-      const marker = { id: Date.now(), icon: ic.name, unicode: ic.unicode, label: "", color: "#ffffff", x: 50, y: 50 };
+      const marker = { id: Date.now(), icon: ic.name, unicode: ic.unicode, label: "", color: "#ffffff", x: 50, y: 50, glowEnable: false, glowColor: "#ffffff", glowSize: 10, glowOpacity: 0.8 };
       markers.push(marker);
       markerListEl.appendChild(createMarkerCard(marker));
       updatePreview();
@@ -1170,7 +1237,17 @@ button {
       </div>
       <div class="marker-card-pos">
         <label>X</label><input type="range" class="marker-x" min="0" max="100" value="${marker.x}"><span class="marker-x-val">${marker.x}%</span>
+      </div>
+      <div class="marker-card-pos">
         <label>Y</label><input type="range" class="marker-y" min="0" max="100" value="${marker.y}"><span class="marker-y-val">${marker.y}%</span>
+      </div>
+      <div class="marker-card-pos" style="align-items:center;gap:5px;flex-wrap:wrap;">
+        <label class="check-row" style="margin:0;gap:4px;font-size:11px;"><input type="checkbox" class="marker-glow-enable" ${marker.glowEnable ? "checked" : ""}> Glow</label>
+        <input type="color" class="marker-glow-color" value="${marker.glowColor}" style="width:32px;height:24px;padding:1px;">
+        <input type="range" class="marker-glow-size" min="0" max="40" step="1" value="${marker.glowSize}" style="width:55px;" title="Blur">
+        <span class="marker-glow-size-val" style="font-size:10px;min-width:18px;">${marker.glowSize}</span>
+        <input type="range" class="marker-glow-opacity" min="0" max="1" step="0.05" value="${marker.glowOpacity}" style="width:45px;" title="Opacity">
+        <span class="marker-glow-opacity-val" style="font-size:10px;min-width:22px;">${marker.glowOpacity}</span>
       </div>
     `;
     card.querySelector(".marker-label-input").value = marker.label;
@@ -1181,6 +1258,11 @@ button {
     const xSlider = card.querySelector(".marker-x"), ySlider = card.querySelector(".marker-y");
     xSlider.oninput = e => { marker.x = parseInt(e.target.value); card.querySelector(".marker-x-val").textContent = marker.x + "%"; updatePreview(); saveToLocalStorage(); };
     ySlider.oninput = e => { marker.y = parseInt(e.target.value); card.querySelector(".marker-y-val").textContent = marker.y + "%"; updatePreview(); saveToLocalStorage(); };
+    // Glow controls
+    card.querySelector(".marker-glow-enable").onchange = e => { marker.glowEnable = e.target.checked; updatePreview(); saveToLocalStorage(); };
+    card.querySelector(".marker-glow-color").oninput  = e => { marker.glowColor = e.target.value; updatePreview(); saveToLocalStorage(); };
+    card.querySelector(".marker-glow-size").oninput   = e => { marker.glowSize = parseInt(e.target.value); card.querySelector(".marker-glow-size-val").textContent = marker.glowSize; updatePreview(); saveToLocalStorage(); };
+    card.querySelector(".marker-glow-opacity").oninput = e => { marker.glowOpacity = parseFloat(e.target.value); card.querySelector(".marker-glow-opacity-val").textContent = marker.glowOpacity.toFixed(2); updatePreview(); saveToLocalStorage(); };
     return card;
   }
 
@@ -1263,9 +1345,12 @@ button {
   const liveControls = [
     matColor, borderWidthEl, borderColorEl,
     gradC1, gradReach, gradCurve,
-    titleInput, titleSize, titleColor, titleWeight, titleSpacing, titleUC,
-    subtitleInput, subtitleSize, subtitleColor, subtitleWeight, subtitleSpacing, subtitleUC,
-    coordsInput, coordsSize, coordsColor, coordsWeight, coordsSpacing, coordsUCEl, showCoords,
+    titleInput, titleSize, titleColor, titleOpacity, titleWeight, titleSpacing, titleUC,
+    titleGlowEnable, titleGlowColor, titleGlowSize, titleGlowOpacity,
+    subtitleInput, subtitleSize, subtitleColor, subtitleOpacity, subtitleWeight, subtitleSpacing, subtitleUC,
+    subtitleGlowEnable, subtitleGlowColor, subtitleGlowSize, subtitleGlowOpacity,
+    coordsInput, coordsSize, coordsColor, coordsOpacity, coordsWeight, coordsSpacing, coordsUCEl, showCoords,
+    coordsGlowEnable, coordsGlowColor, coordsGlowSize, coordsGlowOpacity,
     // titleFont, subtitleFont, coordsFont handled by custom picker
     panelHeight, panelBgColor, sepColor
   ];
@@ -1454,6 +1539,8 @@ button {
 
     updateTextElement(textTitle, titleInput.value, titleVisible, {
       size: parseInt(titleSize.value)||36, color: titleColor.value,
+      opacity: parseFloat(titleOpacity.value),
+      glow: titleGlowEnable.checked ? { color: titleGlowColor.value, size: parseInt(titleGlowSize.value), opacity: parseFloat(titleGlowOpacity.value) } : null,
       weight: titleWeight.value, spacing: parseInt(titleSpacing.value)||0,
       xPct: parseInt(titleX.value), yPct: parseInt(titleY.value),
       align: titleAlign, uppercase: titleUC.checked, font: titleFont.value
@@ -1461,6 +1548,8 @@ button {
 
     updateTextElement(textSubtitle, subtitleInput.value, subtitleVisible, {
       size: parseInt(subtitleSize.value)||14, color: subtitleColor.value,
+      opacity: parseFloat(subtitleOpacity.value),
+      glow: subtitleGlowEnable.checked ? { color: subtitleGlowColor.value, size: parseInt(subtitleGlowSize.value), opacity: parseFloat(subtitleGlowOpacity.value) } : null,
       weight: subtitleWeight.value, spacing: parseInt(subtitleSpacing.value)||0,
       xPct: parseInt(subtitleX.value), yPct: parseInt(subtitleY.value),
       align: subtitleAlign, uppercase: subtitleUC.checked, font: subtitleFont.value
@@ -1468,6 +1557,8 @@ button {
 
     updateTextElement(textCoords, coordsInput.value, coordsVisible, {
       size: parseInt(coordsSize.value)||12, color: coordsColor.value,
+      opacity: parseFloat(coordsOpacity.value),
+      glow: coordsGlowEnable.checked ? { color: coordsGlowColor.value, size: parseInt(coordsGlowSize.value), opacity: parseFloat(coordsGlowOpacity.value) } : null,
       weight: coordsWeight.value, spacing: parseInt(coordsSpacing.value)||0,
       xPct: parseInt(coordsX.value), yPct: parseInt(coordsY.value),
       align: coordsAlign, uppercase: coordsUCEl.checked, font: coordsFont.value
@@ -1503,6 +1594,14 @@ button {
 
     el.style.fontSize = opts.size + "px";
     el.style.color = opts.color;
+    el.style.opacity = (opts.opacity !== undefined) ? opts.opacity : 1;
+    if (opts.glow) {
+      const g = opts.glow;
+      const gc = hexToRgba(g.color, g.opacity);
+      el.style.textShadow = `0 0 ${g.size}px ${gc}, 0 0 ${g.size * 2}px ${gc}`;
+    } else {
+      el.style.textShadow = "";
+    }
     el.style.fontWeight = opts.weight;
     el.style.letterSpacing = opts.spacing + "px";
     el.style.fontFamily = opts.font;
@@ -1537,7 +1636,8 @@ button {
     markers.forEach(m => {
       const wrap = document.createElement("div");
       wrap.style.cssText = `position:absolute; left:${m.x}%; top:${m.y}%; transform:translate(-50%,-50%); text-align:center; pointer-events:none;`;
-      wrap.innerHTML = `<i class="fa-solid fa-${m.icon}" style="font-size:24px; color:${m.color};"></i>`;
+      const glowStyle = m.glowEnable ? `filter:drop-shadow(0 0 ${m.glowSize}px ${hexToRgba(m.glowColor, m.glowOpacity)}) drop-shadow(0 0 ${m.glowSize * 2}px ${hexToRgba(m.glowColor, m.glowOpacity * 0.5)});` : "";
+      wrap.innerHTML = `<i class="fa-solid fa-${m.icon}" style="font-size:24px; color:${m.color}; ${glowStyle}"></i>`;
       if (m.label) {
         const lbl = document.createElement("div");
         lbl.style.cssText = `font-size:10px; color:${m.color}; margin-top:2px; white-space:nowrap;`;
@@ -1663,8 +1763,14 @@ button {
 
       mapLoaded = true;
       previewWrapper.style.display = "block";
-      downloadBtn.disabled = false;
-      $("removeLabelsBtn").style.display = "";
+      // Enable download buttons
+      document.querySelectorAll(".dl-size-btn").forEach(b => {
+        b.disabled = false;
+        b.style.cursor = "pointer";
+        b.style.color = "var(--text2)";
+        b.style.borderColor = "var(--input-border)";
+      });
+
 
       // 6. Update live preview + save settings
       updatePreview();
@@ -1682,43 +1788,7 @@ button {
 
   generateBtn.onclick = generate;
 
-  // ── Remove Labels (AI via Studio) ──
-  $("removeLabelsBtn").onclick = async function() {
-    const btn = this;
-    btn.disabled = true;
-    btn.textContent = "Removing labels…";
-    spinner.style.display = "";
-    try {
-      // Get current map image as PNG blob
-      const res = await fetch(mapLayer.src);
-      const blob = await res.blob();
-      const arrayBuf = await blob.arrayBuffer();
 
-      // Send to /api/post-process
-      const resp = await fetch("/api/post-process?op=remove_labels", {
-        method: "POST",
-        headers: { "Content-Type": "image/png" },
-        body: arrayBuf
-      });
-      if (!resp.ok) {
-        const err = await resp.json();
-        throw new Error(err.error || "Label removal failed");
-      }
-      const cleanBlob = await resp.blob();
-      const cleanUrl = URL.createObjectURL(cleanBlob);
-      mapLayer.src = cleanUrl;
-      await new Promise(r => { mapLayer.onload = r; });
-      updatePreview();
-      btn.textContent = "✓ Labels Removed";
-      setTimeout(() => { btn.textContent = "✦ Remove Labels"; btn.disabled = false; }, 3000);
-    } catch(e) {
-      alert("Label removal failed: " + e.message);
-      btn.disabled = false;
-      btn.textContent = "✦ Remove Labels";
-    } finally {
-      spinner.style.display = "none";
-    }
-  };
   [searchInput, zipInput, latInput, lonInput].forEach(input => {
     input.addEventListener("keydown", e => { if (e.key === "Enter") generate(); });
   });
@@ -1727,19 +1797,87 @@ button {
   window.addEventListener("resize", () => { if (mapLoaded) updatePreview(); });
 
   // ══════════════════════════════════════════════════════════════
-  // Download PNG — manual canvas compositing (reliable)
+  // Download size configs
   // ══════════════════════════════════════════════════════════════
-  downloadBtn.onclick = async function() {
-    if (!mapLoaded) return;
+  const DL_SIZES = {
+    // scale applies to base 1200px map; zoomBoost adds detail
+    print:  { label: "print",  zoomBoost: 2, scale: 5, tileLimit: 225 }, // 6000px (square) → 24×36 @250dpi
+    high:   { label: "high",   zoomBoost: 1, scale: 4, tileLimit: 144 }, // 4800px
+    medium: { label: "medium", zoomBoost: 0, scale: 2, tileLimit: 64 },  // 2400px
+    low:    { label: "low",    zoomBoost: 0, scale: 1, tileLimit: 36 },  // 1200px
+  };
 
-    const size = getCanvasSize();
-    const mT = parseInt(matTop.value)||0, mR = parseInt(matRight.value)||0;
-    const mB = parseInt(matBottom.value)||0, mL = parseInt(matLeft.value)||0;
-    const bw = parseInt(borderWidthEl.value)||0;
+  async function downloadAtSize(sizeKey) {
+    if (!mapLoaded || !lastCenter) return;
+    const cfg = DL_SIZES[sizeKey];
+    const btn = document.querySelector(`.dl-size-btn[data-size="${sizeKey}"]`);
+    const origText = btn.innerHTML;
+    btn.innerHTML = `<span style="font-size:10px;">Rendering…</span>`;
+    btn.disabled = true;
+
+    try {
+      const baseSize = getCanvasSize();
+      const mapW = baseSize.w * cfg.scale;
+      const mapH = baseSize.h * cfg.scale;
+      const zoom = Math.min(16, getActualZoom() + cfg.zoomBoost);
+
+      // Fetch higher-res tile render
+      const resp = await fetch("/api/render", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lat: lastCenter.lat, lon: lastCenter.lon,
+          zoom, width: mapW, height: mapH,
+          style: getEffectiveStyle(), tileLimit: cfg.tileLimit,
+          ...getProcParams()
+        })
+      });
+      if (!resp.ok) throw new Error("Render failed");
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      // Load the hi-res map image
+      const hiresImg = new Image();
+      await new Promise((res, rej) => { hiresImg.onload = res; hiresImg.onerror = rej; hiresImg.src = blobUrl; });
+
+      // Composite at full size
+      const outputCanvas = await compositeToCanvas(hiresImg, mapW, mapH, cfg.scale);
+      URL.revokeObjectURL(blobUrl);
+
+      // Use toDataURL for Safari compatibility (toBlob loses gesture context)
+      const dataUrl = outputCanvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      const titleSlug = (titleInput.value||"mapframe").trim().replace(/\s+/g,"_").replace(/[^\w-]/g,"");
+      a.download = `${titleSlug}-${sizeKey}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+    } catch(e) {
+      alert("Download failed: " + e.message);
+    } finally {
+      btn.innerHTML = origText;
+      btn.disabled = false;
+    }
+  }
+
+  document.querySelectorAll(".dl-size-btn").forEach(btn => {
+    btn.addEventListener("click", () => downloadAtSize(btn.dataset.size));
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  // compositeToCanvas — shared by all download sizes
+  // ══════════════════════════════════════════════════════════════
+  async function compositeToCanvas(mapImg, mapW, mapH, scale) {
+    const mT = (parseInt(matTop.value)||0) * scale;
+    const mR = (parseInt(matRight.value)||0) * scale;
+    const mB = (parseInt(matBottom.value)||0) * scale;
+    const mL = (parseInt(matLeft.value)||0) * scale;
+    const bw = (parseInt(borderWidthEl.value)||0) * scale;
     const usePanelBelow = panelEnable.checked;
-    const pH = usePanelBelow ? (parseInt(panelHeight.value)||120) : 0;
+    const pH = usePanelBelow ? (parseInt(panelHeight.value)||120) * scale : 0;
 
-    const mapW = size.w, mapH = size.h;
     const totalW = mapW + mL + mR;
     const totalH = mapH + mT + mB + pH;
 
@@ -1755,25 +1893,25 @@ button {
     // ── Mat style decorations ──
     if (matStyleVal === "double" && Math.min(mT,mR,mB,mL) > 8) {
       ctx.strokeStyle = borderColorEl.value;
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 1 * scale;
       const inset = 0.3;
       ctx.strokeRect(mL*inset, mT*inset, totalW - mL*inset*2, totalH - mT*inset*2);
     } else if (matStyleVal === "shadow") {
       ctx.shadowColor = "rgba(0,0,0,0.3)";
-      ctx.shadowBlur = 15;
-      ctx.shadowOffsetX = 5;
-      ctx.shadowOffsetY = 5;
+      ctx.shadowBlur = 15 * scale;
+      ctx.shadowOffsetX = 5 * scale;
+      ctx.shadowOffsetY = 5 * scale;
       ctx.fillStyle = matColor.value;
       ctx.fillRect(mL, mT, mapW, mapH);
       ctx.shadowColor = "transparent";
-    } else if (matStyleVal === "inset" && Math.min(mT,mR,mB,mL) > 6) {
+    } else if (matStyleVal === "inset" && Math.min(mT,mR,mB,mL) > 6 * scale) {
       ctx.strokeStyle = "rgba(0,0,0,0.15)";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(mL-4, mT-4, mapW+8, mapH+8);
+      ctx.lineWidth = 1 * scale;
+      ctx.strokeRect(mL-4*scale, mT-4*scale, mapW+8*scale, mapH+8*scale);
     }
 
     // ── Map ──
-    ctx.drawImage(mapLayer, mL, mT, mapW, mapH);
+    ctx.drawImage(mapImg, mL, mT, mapW, mapH);
 
     // ── Gradient overlay ──
     if (gradEnable.checked) {
@@ -1825,27 +1963,33 @@ button {
     if (usePanelBelow) {
       ctx.fillStyle = panelBgColor.value;
       ctx.fillRect(0, mT + mapH, totalW, mB + pH);
-      drawSeparatorOnCtx(ctx, 20, mT + mapH + 10, totalW - 40, sepStyle, sepColor.value);
+      drawSeparatorOnCtx(ctx, 20 * scale, mT + mapH + 10 * scale, totalW - 40 * scale, sepStyle, sepColor.value, scale);
     }
 
     // ── Text elements ──
     drawTextOnCanvas(ctx, titleInput.value, titleVisible, {
-      size: parseInt(titleSize.value)||36, color: titleColor.value,
-      weight: titleWeight.value, spacing: parseInt(titleSpacing.value)||0,
+      size: (parseInt(titleSize.value)||36) * scale, color: titleColor.value,
+      opacity: parseFloat(titleOpacity.value), scale,
+      glow: titleGlowEnable.checked ? { color: titleGlowColor.value, size: parseInt(titleGlowSize.value), opacity: parseFloat(titleGlowOpacity.value) } : null,
+      weight: titleWeight.value, spacing: (parseInt(titleSpacing.value)||0) * scale,
       xPct: parseInt(titleX.value), yPct: parseInt(titleY.value),
       align: titleAlign, uppercase: titleUC.checked, font: titleFont.value
     }, totalW, totalH);
 
     drawTextOnCanvas(ctx, subtitleInput.value, subtitleVisible, {
-      size: parseInt(subtitleSize.value)||14, color: subtitleColor.value,
-      weight: subtitleWeight.value, spacing: parseInt(subtitleSpacing.value)||0,
+      size: (parseInt(subtitleSize.value)||14) * scale, color: subtitleColor.value,
+      opacity: parseFloat(subtitleOpacity.value), scale,
+      glow: subtitleGlowEnable.checked ? { color: subtitleGlowColor.value, size: parseInt(subtitleGlowSize.value), opacity: parseFloat(subtitleGlowOpacity.value) } : null,
+      weight: subtitleWeight.value, spacing: (parseInt(subtitleSpacing.value)||0) * scale,
       xPct: parseInt(subtitleX.value), yPct: parseInt(subtitleY.value),
       align: subtitleAlign, uppercase: subtitleUC.checked, font: subtitleFont.value
     }, totalW, totalH);
 
     drawTextOnCanvas(ctx, coordsInput.value, coordsVisible, {
-      size: parseInt(coordsSize.value)||12, color: coordsColor.value,
-      weight: coordsWeight.value, spacing: parseInt(coordsSpacing.value)||0,
+      size: (parseInt(coordsSize.value)||12) * scale, color: coordsColor.value,
+      opacity: parseFloat(coordsOpacity.value), scale,
+      glow: coordsGlowEnable.checked ? { color: coordsGlowColor.value, size: parseInt(coordsGlowSize.value), opacity: parseFloat(coordsGlowOpacity.value) } : null,
+      weight: coordsWeight.value, spacing: (parseInt(coordsSpacing.value)||0) * scale,
       xPct: parseInt(coordsX.value), yPct: parseInt(coordsY.value),
       align: coordsAlign, uppercase: coordsUCEl.checked, font: coordsFont.value
     }, totalW, totalH);
@@ -1853,32 +1997,30 @@ button {
     // ── Markers ──
     markers.forEach(m => {
       ctx.save();
-      ctx.font = '900 32px "Font Awesome 6 Free"';
+      ctx.font = `900 ${32 * scale}px "Font Awesome 6 Free"`;
       ctx.fillStyle = m.color;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       const mx = mL + (m.x / 100) * mapW;
       const my = mT + (m.y / 100) * mapH;
       const icon = FA_ICONS.find(i => i.name === m.icon);
+      if (m.glowEnable) {
+        ctx.shadowColor = hexToRgba(m.glowColor, m.glowOpacity);
+        ctx.shadowBlur = m.glowSize * scale;
+        ctx.fillText(icon ? icon.unicode : "", mx, my); // double pass
+        ctx.shadowBlur = m.glowSize * scale * 2;
+      }
       ctx.fillText(icon ? icon.unicode : "", mx, my);
+      ctx.shadowBlur = 0; ctx.shadowColor = "transparent";
       if (m.label) {
-        ctx.font = "600 14px Arial, sans-serif";
-        ctx.fillText(m.label, mx, my + 22);
+        ctx.font = `600 ${14 * scale}px Arial, sans-serif`;
+        ctx.fillText(m.label, mx, my + 22 * scale);
       }
       ctx.restore();
     });
 
-    // ── Export ──
-    canvas.toBlob(blob => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      const name = titleInput.value.trim().replace(/\s+/g, "_") || "mapframe";
-      a.download = name + ".png";
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-  };
+    return canvas;
+  }
 
   // ══════════════════════════════════════════════════════════════
   // Canvas text drawing (for download)
@@ -1893,9 +2035,21 @@ button {
     ctx.save();
     ctx.font = `${opts.weight} ${opts.size}px ${opts.font}`;
     ctx.fillStyle = opts.color;
+    ctx.globalAlpha = (opts.opacity !== undefined) ? opts.opacity : 1;
     ctx.letterSpacing = opts.spacing + "px";
     ctx.textBaseline = "top";
     ctx.textAlign = opts.align;
+    if (opts.glow) {
+      const g = opts.glow;
+      const _scale = opts.scale || 1;
+      ctx.shadowColor = hexToRgba(g.color, g.opacity);
+      ctx.shadowBlur = g.size * _scale;
+      // Double pass for stronger glow
+      ctx.fillText(displayText, px, py);
+      ctx.fillText(displayText, px, py);
+      ctx.shadowBlur = 0;
+      ctx.shadowColor = "transparent";
+    }
     ctx.fillText(displayText, px, py);
     ctx.restore();
   }
@@ -1903,31 +2057,31 @@ button {
   // ══════════════════════════════════════════════════════════════
   // Canvas separator drawing (for download)
   // ══════════════════════════════════════════════════════════════
-  function drawSeparatorOnCtx(ctx, x, y, w, style, color) {
+  function drawSeparatorOnCtx(ctx, x, y, w, style, color, scale = 1) {
     ctx.save();
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 1 * scale;
     switch (style) {
       case "line":
         ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x+w, y); ctx.stroke();
         break;
       case "double":
-        ctx.beginPath(); ctx.moveTo(x, y-2); ctx.lineTo(x+w, y-2); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x, y+2); ctx.lineTo(x+w, y+2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x, y-2*scale); ctx.lineTo(x+w, y-2*scale); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x, y+2*scale); ctx.lineTo(x+w, y+2*scale); ctx.stroke();
         break;
       case "dots":
-        for (let i = 0; i <= w; i += 8) {
-          ctx.beginPath(); ctx.arc(x+i, y, 1.5, 0, Math.PI*2); ctx.fill();
+        for (let i = 0; i <= w; i += 8*scale) {
+          ctx.beginPath(); ctx.arc(x+i, y, 1.5*scale, 0, Math.PI*2); ctx.fill();
         }
         break;
       case "diamond": {
         const mid = x + w/2;
         ctx.beginPath();
-        ctx.moveTo(mid-6, y); ctx.lineTo(mid, y-6); ctx.lineTo(mid+6, y); ctx.lineTo(mid, y+6);
+        ctx.moveTo(mid-6*scale, y); ctx.lineTo(mid, y-6*scale); ctx.lineTo(mid+6*scale, y); ctx.lineTo(mid, y+6*scale);
         ctx.closePath(); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(mid-12, y); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(mid+12, y); ctx.lineTo(x+w, y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(mid-12*scale, y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(mid+12*scale, y); ctx.lineTo(x+w, y); ctx.stroke();
         break;
       }
       case "none": break;
@@ -1970,13 +2124,16 @@ button {
 
     // Gradient
     p.set("grad", gradEnable.checked ? "1" : "0");
-    p.set("gradDir", gradDir.value);
+    // gradDir removed (legacy)
     p.set("gradC1", gradC1.value); p.set("gradO1", gradO1.value);
     p.set("gradC2", gradC2.value); p.set("gradO2", gradO2.value);
     p.set("gradReach", gradReach.value); p.set("gradCurve", gradCurve.value); p.set("gradEdge", gradEdge);
+    if (procEnable.checked) p.set("proc", "1");
     p.set("pcon", procContrast.value); p.set("pbri", procBright.value); p.set("psat", procSat.value);
-    if (procGray.checked) p.set("pgray", "1");
-    if (procInvert.checked) p.set("pinv", "1");
+    p.set("pblk", procBlackPt.value);
+    if (procNorm.checked)   p.set("pnorm",  "1");
+    if (procGray.checked)   p.set("pgray",  "1");
+    if (procInvert.checked) p.set("pinv",   "1");
 
     // Font
     p.set("tfont", titleFont.value); p.set("sfont", subtitleFont.value); p.set("cfont", coordsFont.value);
@@ -1986,7 +2143,8 @@ button {
     p.set("tsz", titleSize.value);
     p.set("tc", titleColor.value);
     p.set("tw", titleWeight.value);
-    p.set("tsp", titleSpacing.value);
+    p.set("tsp", titleSpacing.value); p.set("top", titleOpacity.value);
+    if (titleGlowEnable.checked) { p.set("tgl", "1"); p.set("tglc", titleGlowColor.value); p.set("tgls", titleGlowSize.value); p.set("tglo", titleGlowOpacity.value); }
     p.set("t1x", titleX.value);
     p.set("t1y", titleY.value);
     p.set("t1a", titleAlign);
@@ -1998,7 +2156,8 @@ button {
     p.set("ssz", subtitleSize.value);
     p.set("scl", subtitleColor.value);
     p.set("sw", subtitleWeight.value);
-    p.set("ssp", subtitleSpacing.value);
+    p.set("ssp", subtitleSpacing.value); p.set("sop", subtitleOpacity.value);
+    if (subtitleGlowEnable.checked) { p.set("sgl", "1"); p.set("sglc", subtitleGlowColor.value); p.set("sgls", subtitleGlowSize.value); p.set("sglo", subtitleGlowOpacity.value); }
     p.set("t2x", subtitleX.value);
     p.set("t2y", subtitleY.value);
     p.set("t2a", subtitleAlign);
@@ -2010,7 +2169,8 @@ button {
     p.set("csz", coordsSize.value);
     p.set("ccl", coordsColor.value);
     p.set("cw2", coordsWeight.value);
-    p.set("csp", coordsSpacing.value);
+    p.set("csp", coordsSpacing.value); p.set("cop", coordsOpacity.value);
+    if (coordsGlowEnable.checked) { p.set("cgl", "1"); p.set("cglc", coordsGlowColor.value); p.set("cgls", coordsGlowSize.value); p.set("cglo", coordsGlowOpacity.value); }
     p.set("t3x", coordsX.value);
     p.set("t3y", coordsY.value);
     p.set("t3a", coordsAlign);
@@ -2026,12 +2186,15 @@ button {
     p.set("sepC", sepColor.value);
 
     // Markers
-    if (markers.length) p.set("markers", JSON.stringify(markers.map(m => ({i:m.icon,l:m.label,c:m.color,x:m.x,y:m.y}))));
+    if (markers.length) p.set("markers", JSON.stringify(markers.map(m => ({i:m.icon,l:m.label,c:m.color,x:m.x,y:m.y,ge:m.glowEnable?1:0,gc:m.glowColor,gs:m.glowSize,go:m.glowOpacity}))));
 
     return window.location.origin + window.location.pathname + "?" + p.toString();
   }
 
   function loadFromURL() {
+    try { return _loadFromURL(); } catch(e) { console.error("loadFromURL failed:", e); return false; }
+  }
+  function _loadFromURL() {
     const p = new URLSearchParams(window.location.search);
     if (!p.has("lmode") && !p.has("q") && !p.has("lat")) return false;
 
@@ -2084,11 +2247,11 @@ button {
       gradEnable.checked = true;
       gradOpts.style.display = "";
     }
-    if (p.has("gradDir")) gradDir.value = p.get("gradDir");
+    // gradDir is legacy (now gradEdge); skip gracefully
     if (p.has("gradC1")) gradC1.value = p.get("gradC1");
-    if (p.has("gradO1")) { gradO1.value = p.get("gradO1"); $("gradO1Val").textContent = parseFloat(p.get("gradO1")).toFixed(2); }
+    if (p.has("gradO1")) { gradO1.value = p.get("gradO1"); if ($("gradO1Val")) $("gradO1Val").textContent = parseFloat(p.get("gradO1")).toFixed(2); }
     if (p.has("gradC2")) gradC2.value = p.get("gradC2");
-    if (p.has("gradO2")) { gradO2.value = p.get("gradO2"); $("gradO2Val").textContent = parseFloat(p.get("gradO2")).toFixed(2); }
+    if (p.has("gradO2")) { gradO2.value = p.get("gradO2"); if ($("gradO2Val")) $("gradO2Val").textContent = parseFloat(p.get("gradO2")).toFixed(2); }
     if (p.has("gradReach")) { gradReach.value = p.get("gradReach"); $("gradReachVal").textContent = p.get("gradReach") + "%"; }
     if (p.has("gradCurve")) gradCurve.value = p.get("gradCurve");
     if (p.has("gradEdge")) {
@@ -2102,11 +2265,17 @@ button {
     }
 
     // Process params
-    if (p.has("pcon")) { procContrast.value = p.get("pcon"); $("procContrastVal").textContent = parseFloat(p.get("pcon")).toFixed(1) + "×"; }
-    if (p.has("pbri")) { procBright.value = p.get("pbri"); $("procBrightVal").textContent = parseFloat(p.get("pbri")).toFixed(1) + "×"; }
-    if (p.has("psat")) { procSat.value = p.get("psat"); $("procSatVal").textContent = parseFloat(p.get("psat")).toFixed(1) + "×"; }
-    if (p.has("pgray")) procGray.checked = p.get("pgray") === "1";
-    if (p.has("pinv"))  procInvert.checked = p.get("pinv") === "1";
+    if (p.has("proc")) { procEnable.checked = true; $("procBody").style.display = ""; }
+    if (p.has("pcon"))  { procContrast.value = p.get("pcon"); $("procContrastVal").textContent = parseFloat(p.get("pcon")).toFixed(1) + "×"; }
+    if (p.has("pbri"))  { procBright.value   = p.get("pbri"); $("procBrightVal").textContent   = parseFloat(p.get("pbri")).toFixed(1) + "×"; }
+    if (p.has("psat"))  { procSat.value      = p.get("psat"); $("procSatVal").textContent      = parseFloat(p.get("psat")).toFixed(1) + "×"; }
+    if (p.has("pblk"))  { procBlackPt.value  = p.get("pblk"); $("procBlackPtVal").textContent  = p.get("pblk"); }
+    if (p.has("pnorm")) procNorm.checked   = p.get("pnorm")  === "1";
+    if (p.has("pgray")) procGray.checked   = p.get("pgray")  === "1";
+    if (p.has("pinv"))  procInvert.checked = p.get("pinv")   === "1";
+    // Auto-expand Process if any non-default values present
+    const procActive = (parseFloat(p.get("pcon")||1)!==1||parseFloat(p.get("pbri")||1)!==1||parseFloat(p.get("psat")||1)!==1||parseFloat(p.get("pblk")||0)!==0||p.get("pnorm")==="1"||p.get("pgray")==="1"||p.get("pinv")==="1"||p.has("proc"));
+    if (procActive) { procEnable.checked = true; $("procBody").style.display = ""; }
 
     // Font
     function setFontPicker(id, val) {
@@ -2127,6 +2296,8 @@ button {
     if (p.has("tc")) titleColor.value = p.get("tc");
     if (p.has("tw")) titleWeight.value = p.get("tw");
     if (p.has("tsp")) titleSpacing.value = p.get("tsp");
+    if (p.has("top")) { titleOpacity.value = p.get("top"); $("titleOpacityVal").textContent = parseFloat(p.get("top")).toFixed(2); }
+    if (p.has("tgl")) { titleGlowEnable.checked = true; if (p.has("tglc")) titleGlowColor.value = p.get("tglc"); if (p.has("tgls")) { titleGlowSize.value = p.get("tgls"); $("titleGlowSizeVal").textContent = p.get("tgls"); } if (p.has("tglo")) { titleGlowOpacity.value = p.get("tglo"); $("titleGlowOpacityVal").textContent = parseFloat(p.get("tglo")).toFixed(2); } }
     if (p.has("t1x")) { titleX.value = p.get("t1x"); $("titleXVal").textContent = p.get("t1x") + "%"; }
     if (p.has("t1y")) { titleY.value = p.get("t1y"); $("titleYVal").textContent = p.get("t1y") + "%"; }
     if (p.has("t1a")) {
@@ -2145,6 +2316,8 @@ button {
     if (p.has("scl")) subtitleColor.value = p.get("scl");
     if (p.has("sw")) subtitleWeight.value = p.get("sw");
     if (p.has("ssp")) subtitleSpacing.value = p.get("ssp");
+    if (p.has("sop")) { subtitleOpacity.value = p.get("sop"); $("subtitleOpacityVal").textContent = parseFloat(p.get("sop")).toFixed(2); }
+    if (p.has("sgl")) { subtitleGlowEnable.checked = true; if (p.has("sglc")) subtitleGlowColor.value = p.get("sglc"); if (p.has("sgls")) { subtitleGlowSize.value = p.get("sgls"); $("subtitleGlowSizeVal").textContent = p.get("sgls"); } if (p.has("sglo")) { subtitleGlowOpacity.value = p.get("sglo"); $("subtitleGlowOpacityVal").textContent = parseFloat(p.get("sglo")).toFixed(2); } }
     if (p.has("t2x")) { subtitleX.value = p.get("t2x"); $("subtitleXVal").textContent = p.get("t2x") + "%"; }
     if (p.has("t2y")) { subtitleY.value = p.get("t2y"); $("subtitleYVal").textContent = p.get("t2y") + "%"; }
     if (p.has("t2a")) {
@@ -2163,6 +2336,8 @@ button {
     if (p.has("ccl")) coordsColor.value = p.get("ccl");
     if (p.has("cw2")) coordsWeight.value = p.get("cw2");
     if (p.has("csp")) coordsSpacing.value = p.get("csp");
+    if (p.has("cop")) { coordsOpacity.value = p.get("cop"); $("coordsOpacityVal").textContent = parseFloat(p.get("cop")).toFixed(2); }
+    if (p.has("cgl")) { coordsGlowEnable.checked = true; if (p.has("cglc")) coordsGlowColor.value = p.get("cglc"); if (p.has("cgls")) { coordsGlowSize.value = p.get("cgls"); $("coordsGlowSizeVal").textContent = p.get("cgls"); } if (p.has("cglo")) { coordsGlowOpacity.value = p.get("cglo"); $("coordsGlowOpacityVal").textContent = parseFloat(p.get("cglo")).toFixed(2); } }
     if (p.has("t3x")) { coordsX.value = p.get("t3x"); $("coordsXVal").textContent = p.get("t3x") + "%"; }
     if (p.has("t3y")) { coordsY.value = p.get("t3y"); $("coordsYVal").textContent = p.get("t3y") + "%"; }
     if (p.has("t3a")) {
@@ -2197,7 +2372,7 @@ button {
         arr.forEach(m => {
           const icon = FA_ICONS.find(i => i.name === m.i);
           if (!icon) return;
-          markers.push({ id: Date.now() + Math.random(), icon: icon.name, unicode: icon.unicode, label: String(m.l || "").slice(0, 50), color: /^#[0-9a-fA-F]{6}$/.test(m.c) ? m.c : "#ffffff", x: Math.max(0, Math.min(100, Number(m.x) || 50)), y: Math.max(0, Math.min(100, Number(m.y) || 50)) });
+          markers.push({ id: Date.now() + Math.random(), icon: icon.name, unicode: icon.unicode, label: String(m.l || "").slice(0, 50), color: /^#[0-9a-fA-F]{6}$/.test(m.c) ? m.c : "#ffffff", x: Math.max(0, Math.min(100, Number(m.x) || 50)), y: Math.max(0, Math.min(100, Number(m.y) || 50)), glowEnable: !!m.ge, glowColor: /^#[0-9a-fA-F]{6}$/.test(m.gc) ? m.gc : "#ffffff", glowSize: Math.max(0, Math.min(40, Number(m.gs) || 10)), glowOpacity: Math.max(0, Math.min(1, Number(m.go) || 0.8)) });
         });
         markerListEl.innerHTML = "";
         markers.forEach(m => markerListEl.appendChild(createMarkerCard(m)));
@@ -2237,11 +2412,14 @@ button {
   // ══════════════════════════════════════════════════════════════
   // localStorage persistence
   // ══════════════════════════════════════════════════════════════
-  const LS_KEY = "mapframe_settings_v1";
+  const LS_KEY = "mapframe_settings_v2"; // bumped to clear stale cache from broken MapTiler key period
 
   function saveToLocalStorage() {
     try {
-      localStorage.setItem(LS_KEY, buildShareURL().split("?")[1] || "");
+      const params = buildShareURL().split("?")[1] || "";
+      localStorage.setItem(LS_KEY, params);
+      // Keep URL in sync so Copy Link always reflects current state
+      window.history.replaceState(null, "", params ? "?" + params : window.location.pathname);
     } catch(e) {}
   }
 
@@ -2261,7 +2439,6 @@ button {
 
   // Reset button
   $("resetBtn").onclick = () => {
-    if (!confirm("Reset all settings to defaults?")) return;
     try { localStorage.removeItem(LS_KEY); } catch(e) {}
     window.location.href = window.location.pathname;
   };

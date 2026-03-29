@@ -13,30 +13,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ── Tile styles (@2x = 512×512px) ──
 
 const TILE_STYLES = {
-  // Light
   positron:          "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
   positron_nolabels: "https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}@2x.png",
   voyager:           "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
   voyager_nolabels:  "https://a.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}@2x.png",
-  mt_basic:          "https://api.maptiler.com/maps/basic-v2/{z}/{x}/{y}@2x.png?key=${process.env.MAPTILER_KEY}",
-  // Artistic
-  mt_aquarelle:      "https://api.maptiler.com/maps/aquarelle/{z}/{x}/{y}@2x.png?key=${process.env.MAPTILER_KEY}",
-  mt_toner:          "https://api.maptiler.com/maps/toner-v2/{z}/{x}/{y}@2x.png?key=${process.env.MAPTILER_KEY}",
-  mt_toner_bg:       "https://api.maptiler.com/maps/toner-v2-background/{z}/{x}/{y}@2x.png?key=${process.env.MAPTILER_KEY}",
-  // Rich/colorful
-  mt_streets:        "https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}@2x.png?key=${process.env.MAPTILER_KEY}",
-  mt_outdoor:        "https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}@2x.png?key=${process.env.MAPTILER_KEY}",
-  mt_topo:           "https://api.maptiler.com/maps/topo-v2/{z}/{x}/{y}@2x.png?key=${process.env.MAPTILER_KEY}",
-  mt_winter:         "https://api.maptiler.com/maps/winter-v2/{z}/{x}/{y}@2x.png?key=${process.env.MAPTILER_KEY}",
-  mt_satellite:      "https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}@2x.png?key=${process.env.MAPTILER_KEY}",
-  // Dark
-  dark:              "https://api.maptiler.com/maps/streets-v2-dark/{z}/{x}/{y}@2x.png?key=${process.env.MAPTILER_KEY}",
+  mt_basic:          "https://api.maptiler.com/maps/basic-v2/{z}/{x}/{y}@2x.png?key=hCyLl9rO9H0k3vMra7tF",
+  mt_aquarelle:      "https://api.maptiler.com/maps/aquarelle/{z}/{x}/{y}@2x.png?key=hCyLl9rO9H0k3vMra7tF",
+  mt_toner:          "https://api.maptiler.com/maps/toner-v2/{z}/{x}/{y}@2x.png?key=hCyLl9rO9H0k3vMra7tF",
+  mt_toner_bg:       "https://api.maptiler.com/maps/toner-v2-background/{z}/{x}/{y}@2x.png?key=hCyLl9rO9H0k3vMra7tF",
+  mt_streets:        "https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}@2x.png?key=hCyLl9rO9H0k3vMra7tF",
+  mt_outdoor:        "https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}@2x.png?key=hCyLl9rO9H0k3vMra7tF",
+  mt_topo:           "https://api.maptiler.com/maps/topo-v2/{z}/{x}/{y}@2x.png?key=hCyLl9rO9H0k3vMra7tF",
+  mt_winter:         "https://api.maptiler.com/maps/winter-v2/{z}/{x}/{y}@2x.png?key=hCyLl9rO9H0k3vMra7tF",
+  mt_satellite:      "https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}@2x.png?key=hCyLl9rO9H0k3vMra7tF",
+  dark:              "https://api.maptiler.com/maps/streets-v2-dark/{z}/{x}/{y}@2x.png?key=hCyLl9rO9H0k3vMra7tF",
   dark_nolabels:     "https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png",
-  mt_dark:           "https://api.maptiler.com/maps/dataviz-dark/{z}/{x}/{y}@2x.png?key=${process.env.MAPTILER_KEY}",
-  // Minimal/high-contrast
+  mt_dark:           "https://api.maptiler.com/maps/dataviz-dark/{z}/{x}/{y}@2x.png?key=hCyLl9rO9H0k3vMra7tF",
   esri_dark_gray:    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-  mt_backdrop:       "https://api.maptiler.com/maps/backdrop/{z}/{x}/{y}@2x.png?key=${process.env.MAPTILER_KEY}",
-};
+  mt_backdrop:       "https://api.maptiler.com/maps/backdrop/{z}/{x}/{y}@2x.png?key=hCyLl9rO9H0k3vMra7tF",
+}
 
 const TILE_SIZE = 512;
 
@@ -66,17 +61,18 @@ function getTileUrl(style, z, x, y) {
   return TILE_STYLES[style].replace('{z}', z).replace('{x}', x).replace('{y}', y);
 }
 
-// ── Geocode via Nominatim ──
+// ── Geocode via MapTiler (better address + POI support) ──
 
 async function geocode(query, countrycodes) {
-  let url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
-  if (countrycodes) url += `&countrycodes=${encodeURIComponent(countrycodes)}`;
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'MapFrameApp/1.0 (ben@homesweetserver.com)' }
-  });
+  const key = process.env.MAPTILER_KEY;
+  let url = `https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=${key}&limit=1`;
+  if (countrycodes) url += `&country=${countrycodes}`;
+  const res = await fetch(url);
   const data = await res.json();
-  if (!data || data.length === 0) throw new Error('Location not found');
-  return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), display_name: data[0].display_name };
+  if (!data || !data.features || data.features.length === 0) throw new Error('Location not found');
+  const f = data.features[0];
+  const [lon, lat] = f.geometry.coordinates;
+  return { lat, lon, display_name: f.place_name || f.text || query };
 }
 
 // ── POST /api/osm ──
@@ -169,7 +165,8 @@ app.post('/api/render', async (req, res) => {
       }
     }
 
-    if (tiles.length > 36) {
+    const tileLimit = Math.min(parseInt(req.body.tileLimit, 10) || 36, 225);
+    if (tiles.length > tileLimit) {
       return res.status(400).json({ error: `Too many tiles (${tiles.length}). Use a higher zoom or smaller dimensions.` });
     }
 
@@ -182,8 +179,9 @@ app.post('/api/render', async (req, res) => {
           timeout: 10000
         });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const raw = await resp.buffer();
-        // Normalize tile + optional contrast boost
+        // Use arrayBuffer() — resp.buffer() is deprecated and unreliable for large tiles
+        const raw = Buffer.from(await resp.arrayBuffer());
+        // Resize every tile to TS×TS so grid math stays consistent
         let pipeline = sharp(raw).resize(TS, TS, { fit: 'fill' });
         if (CONTRAST_BOOST[style]) {
           const [a, b] = CONTRAST_BOOST[style].linear;
@@ -213,16 +211,9 @@ app.post('/api/render', async (req, res) => {
     const stitchH = (tileMaxY - tileMinY + 1) * TS;
     const cropX = Math.max(0, left - tileMinX * TS);
     const cropY = Math.max(0, top - tileMinY * TS);
-    // Clamp crop dimensions to stay within stitched canvas
     const cropW = Math.min(w, stitchW - cropX);
     const cropH = Math.min(h, stitchH - cropY);
-
-    console.log(`Stitch ${stitchW}x${stitchH}, crop at (${cropX},${cropY}) ${cropW}x${cropH}`);
-    // Debug: log actual sizes of each tile buffer
-    for (const t of tileResults) {
-      const meta = await sharp(t.buffer).metadata();
-      console.log(`  tile left=${t.left} top=${t.top} actual=${meta.width}x${meta.height}`);
-    }
+    console.log("Stitch " + stitchW + "x" + stitchH + ", crop at (" + cropX + "," + cropY + ") " + cropW + "x" + cropH);
 
     const baseCanvas = await sharp({
       create: { width: stitchW, height: stitchH, channels: 4, background: { r: 240, g: 240, b: 240, alpha: 255 } }
@@ -245,20 +236,28 @@ app.post('/api/render', async (req, res) => {
     const invert      = req.body.invert === true || req.body.invert === 'true';
     const grayscale   = req.body.grayscale === true || req.body.grayscale === 'true';
 
-    // Pipeline: grayscale → normalize → [negate if invert] → contrast/brightness/blackpoint → saturation → [negate again if NOT invert to restore, or skip]
-    // When invert=true: negate early so contrast boosts the right tones, no second negate needed
-    // When invert=false: negate at end (or skip if not checked)
-    if (grayscale)  pipeline = pipeline.grayscale();
+    // Pipeline: [normalize opt] → contrast → brightness/blackpoint → saturation → grayscale → invert
     const normalize = req.body.normalize === true || req.body.normalize === 'true';
-    if (normalize)  pipeline = pipeline.normalize();
-    if (invert)     pipeline = pipeline.negate(); // negate before contrast when inverting
     const blackPoint = parseFloat(req.body.blackPoint || 0);
-    if (contrast !== 1 || brightness !== 1 || blackPoint !== 0) {
-      const a = contrast;
-      const b = Math.round((brightness - 1) * 128) - blackPoint;
-      pipeline = pipeline.linear(a, b);
+
+    // Auto-normalize before contrast to prevent blowout on light/pale map styles
+    // User can also enable Normalize checkbox explicitly for fine control
+    const shouldNorm = normalize || contrast > 1.0;
+    if (shouldNorm) pipeline = pipeline.normalize();
+
+    if (contrast !== 1) {
+      // After normalize, tones are full-range 0-255; simple multiply is safe
+      pipeline = pipeline.linear(contrast, 0);
     }
+
+    if (brightness !== 1 || blackPoint !== 0) {
+      const b = Math.round((brightness - 1) * 128) - blackPoint;
+      if (b !== 0) pipeline = pipeline.linear(1, b);
+    }
+
     if (saturation !== 1) pipeline = pipeline.modulate({ saturation });
+    if (grayscale) pipeline = pipeline.grayscale();
+    if (invert)    pipeline = pipeline.negate();
 
     const result = await pipeline.png().toBuffer();
     res.set('Content-Type', 'image/png');
@@ -295,13 +294,17 @@ app.post('/api/post-process', async (req, res) => {
     // SSH to studio and run pipeline
     await new Promise((resolve, reject) => {
       const ssh = execFile('ssh', [
+        '-o', 'IdentitiesOnly=yes',
+        '-o', 'StrictHostKeyChecking=no',
+        '-o', 'BatchMode=yes',
         'ben@studio',
         `/opt/homebrew/opt/python@3.12/bin/python3.12 ~/bin/remove_labels.py - -`
-      ], { maxBuffer: 50 * 1024 * 1024 });
+      ], { maxBuffer: 50 * 1024 * 1024, encoding: 'buffer' });
 
       const chunks2 = [];
       ssh.stdout.on('data', d => chunks2.push(d));
       ssh.stderr.on('data', d => process.stderr.write('[studio] ' + d));
+      ssh.stdin.on('error', () => {}); // suppress EPIPE if ssh exits early
       ssh.stdin.write(inputBuf);
       ssh.stdin.end();
 
@@ -320,6 +323,12 @@ app.post('/api/post-process', async (req, res) => {
     console.error('post-process error:', err);
     res.status(500).json({ error: err.message });
   }
+});
+
+// Prevent EPIPE crashes from killing the server
+process.on('uncaughtException', err => {
+  if (err.code === 'EPIPE') { console.error('[warn] EPIPE swallowed'); return; }
+  console.error('Uncaught exception:', err);
 });
 
 app.listen(PORT, () => console.log(`MapFrame running on http://localhost:${PORT}`));
