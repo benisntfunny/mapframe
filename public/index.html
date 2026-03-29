@@ -1,545 +1,2284 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MapFrame - Framed Map Art Generator</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MapFrame — Map Art Generator</title>
+<meta name="description" content="Create Mapiful-style map art prints. 14 tile styles, custom text, markers, gradients, and PNG export. Free.">
 
-    :root {
-      --bg: #f5f2ee;
-      --surface: #fff;
-      --border: #e0dbd4;
-      --text: #2c2c2c;
-      --text-muted: #888;
-      --accent: #3a3028;
-      --accent-light: #6b5c4e;
-      --radius: 8px;
-    }
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mapframe.apps.homesweetserver.com">
+<meta property="og:title" content="MapFrame — Map Art Generator">
+<meta property="og:description" content="Create beautiful map art prints. Choose a location, pick a style, add custom text and markers, export as high-res PNG.">
+<meta property="og:image" content="https://mapframe.apps.homesweetserver.com/og-preview.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="MapFrame">
 
-    body {
-      font-family: 'Georgia', serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MapFrame — Map Art Generator">
+<meta name="twitter:description" content="Create beautiful map art prints. Choose a location, pick a style, add custom text and markers, export as high-res PNG.">
+<meta name="twitter:image" content="https://mapframe.apps.homesweetserver.com/og-preview.jpg">
 
-    header {
-      background: var(--accent);
-      color: #f0ebe3;
-      padding: 20px 32px;
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
-    }
+<!-- Favicons — adapts to system dark/light mode -->
+<link rel="icon" type="image/png" sizes="32x32" href="/mf-icon-dark-32.png" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" sizes="32x32" href="/mf-icon-light-32.png" media="(prefers-color-scheme: light)">
+<link rel="apple-touch-icon" sizes="180x180" href="/mf-icon-dark-180.png" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" sizes="180x180" href="/mf-icon-light-180.png" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bebas+Neue&family=Cinzel&family=Cormorant+Garamond:wght@300;400;600&family=DM+Serif+Display&family=Josefin+Sans:wght@300;400;600&family=Lato:wght@300;400;700&family=Libre+Baskerville:wght@400;700&family=Merriweather:wght@300;400;700&family=Montserrat:wght@300;400;600;700&family=Open+Sans:wght@300;400;600&family=Oswald:wght@300;400;600&family=Playfair+Display:wght@400;600;700&family=Raleway:wght@300;400;600&family=Roboto:wght@300;400;700&family=Roboto+Condensed:wght@300;400;700&family=Roboto+Mono&family=Spectral:wght@300;400;600&family=Work+Sans:wght@300;400;600&display=swap">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d0d0d;
+  --surface: #141414;
+  --surface2: #1c1c1c;
+  --surface3: #242424;
+  --surface4: #2e2e2e;
+  --text: #ffffff;
+  --text2: #6b6b6b;
+  --text3: #3a3a3a;
+  --accent: #ffffff;
+  --accent-dim: rgba(255,255,255,0.06);
+  --input-bg: #111111;
+  --input-border: #242424;
+  --radius: 8px;
+  --divider: #1c1c1c;
+}
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
 
-    header h1 {
-      font-size: 1.6rem;
-      font-weight: normal;
-      letter-spacing: 0.12em;
-    }
+/* ── Sidebar ── */
+#sidebar {
+  width: 320px; min-width: 320px;
+  height: 100vh;
+  background: var(--surface);
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--divider);
 
-    header span {
-      font-family: sans-serif;
-      font-size: 0.78rem;
-      opacity: 0.5;
-      letter-spacing: 0.05em;
-    }
+}
+#sidebar::-webkit-scrollbar { width: 4px; }
+#sidebar::-webkit-scrollbar-track { background: transparent; }
+#sidebar::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 340px 1fr;
-      gap: 0;
-      min-height: calc(100vh - 66px);
-    }
+/* Sidebar header */
+#sidebar-header {
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--divider);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-shrink: 0;
+}
+#sidebar-header h1 { font-size: 14px; font-weight: 700; letter-spacing: 0.5px; color: var(--text); }
+#sidebar-header span { font-size: 10px; color: var(--text3); letter-spacing: 0.5px; }
 
-    .sidebar {
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      padding: 28px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
+/* Sidebar inner scroll area */
+#sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 2px; }
+#sidebar-scroll::-webkit-scrollbar { width: 4px; }
+#sidebar-scroll::-webkit-scrollbar-thumb { background: var(--surface3); }
 
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+/* ── Preview area ── */
+#preview-area { flex: 1; display: flex; align-items: center; justify-content: center; background: #0a0a0a; position: relative; overflow: hidden; }
+#placeholder { color: var(--text2); font-size: 18px; }
+#spinner { display: none; position: absolute; z-index: 10; }
+#spinner::after { content: ''; display: block; width: 48px; height: 48px; border: 4px solid var(--text2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-    label {
-      font-family: sans-serif;
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
+/* ── Preview wrapper: the live HTML/CSS composition ── */
+#preview-wrapper {
+  position: relative;
+  display: none; /* shown once map loads */
+  transform-origin: center center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  overflow: visible;
+  flex-shrink: 0;
+}
 
-    input, select {
-      font-family: sans-serif;
-      font-size: 0.9rem;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 9px 12px;
-      background: var(--bg);
-      color: var(--text);
-      transition: border-color 0.2s;
-    }
+/* Mat divs */
+.mat-edge { position: absolute; z-index: 0; }
+#mat-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
 
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--accent-light);
-    }
+/* Map layer */
+#map-layer { display: block; position: relative; z-index: 1; }
 
-    .style-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-    }
+/* Gradient overlay */
+#gradient-overlay { position: absolute; z-index: 2; pointer-events: none; display: none; }
 
-    .style-btn {
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      padding: 10px 6px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      background: var(--bg);
-      transition: border-color 0.2s, background 0.2s;
-      font-family: sans-serif;
-      font-size: 0.72rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
+/* Text layer */
+#text-layer { position: absolute; z-index: 3; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+.text-el { position: absolute; white-space: nowrap; transform: translate(-50%, 0); }
+.text-el.align-left { transform: translate(0, 0); }
+.text-el.align-right { transform: translate(-100%, 0); }
+.text-el.align-center { transform: translate(-50%, 0); }
 
-    .style-btn:hover { border-color: var(--accent-light); }
-    .style-btn.active { border-color: var(--accent); background: var(--accent); color: #f0ebe3; }
+/* Marker layer */
+#marker-layer { position: absolute; z-index: 4; pointer-events: none; }
 
-    .style-preview {
-      width: 44px;
-      height: 44px;
-      border-radius: 4px;
-      position: relative;
-      overflow: hidden;
-    }
+/* Border overlay */
+#border-overlay { position: absolute; z-index: 5; pointer-events: none; box-sizing: border-box; }
 
-    .preview-minimal {
-      background: #f8f5f0;
-      border: 1px solid #ddd;
-    }
-    .preview-minimal::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 20%;
-      right: 20%;
-      height: 1.5px;
-      background: #bbb;
-    }
-    .preview-minimal::before {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 20%;
-      bottom: 20%;
-      width: 1.5px;
-      background: #bbb;
-    }
+/* Panel below map */
+#panel-layer { position: relative; z-index: 1; display: none; }
+#panel-separator { position: absolute; top: 0; left: 0; width: 100%; }
 
-    .preview-dark {
-      background: #0d0d0d;
-    }
-    .preview-dark::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 20%;
-      right: 20%;
-      height: 1.5px;
-      background: #555;
-    }
-    .preview-dark::before {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 20%;
-      bottom: 20%;
-      width: 1.5px;
-      background: #555;
-    }
+/* ── Controls ── */
+.section {
+  padding: 10px 12px 12px;
+  border-bottom: 1px solid var(--divider);
+}
+.section:last-child { border-bottom: none; }
+.section-title {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 2.5px;
+  color: var(--text3); margin-bottom: 10px; font-weight: 700;
+}
+.row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+.row:last-child { margin-bottom: 0; }
+label { font-size: 11px; color: var(--text2); min-width: 36px; }
+input[type="text"], input[type="number"], select {
+  flex: 1;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  min-width: 0;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+input[type="text"]:focus, input[type="number"]:focus, select:focus {
+  border-color: var(--surface4);
+}
+input[type="color"] {
+  width: 32px; height: 26px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius);
+  background: var(--input-bg);
+  cursor: pointer; padding: 1px;
+}
+input[type="range"] { flex: 1; accent-color: var(--accent); }
+input[type="checkbox"] { accent-color: var(--accent); }
+button {
+  cursor: pointer; border: none;
+  border-radius: 20px;
+  font-size: 11px; padding: 7px 16px;
+  font-weight: 600; transition: all 0.15s;
+  letter-spacing: 0.5px;
+  font-family: inherit;
+}
+.btn-primary {
+  background: var(--surface3);
+  color: var(--text);
+  width: 100%;
+  font-size: 11px;
+  padding: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid var(--surface4);
+}
+.btn-primary:hover { background: var(--surface4); }
+.btn-primary:disabled { background: var(--surface2); color: var(--text3); cursor: not-allowed; }
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1px solid var(--input-border);
+}
+.btn-secondary:hover { color: var(--text); background: var(--surface3); }
 
-    .preview-sepia {
-      background: #f4ead8;
-      border: 1px solid #d0b898;
-    }
-    .preview-sepia::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 20%;
-      right: 20%;
-      height: 1.5px;
-      background: #9a7c5a;
-    }
-    .preview-sepia::before {
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 20%;
-      bottom: 20%;
-      width: 1.5px;
-      background: #9a7c5a;
-    }
+/* Tabs */
+.tabs { display: flex; gap: 3px; margin-bottom: 10px; background: var(--input-bg); border-radius: 20px; padding: 3px; border: 1px solid var(--input-border); }
+.tab { flex: 1; padding: 5px; font-size: 10px; text-align: center; color: var(--text2); border-radius: 16px; cursor: pointer; border: none; background: transparent; letter-spacing: 1px; text-transform: uppercase; transition: all 0.15s; font-family: inherit; font-weight: 600; }
+.tab.active { background: var(--surface3); color: var(--text); }
 
-    .render-btn {
-      background: var(--accent);
-      color: #f0ebe3;
-      border: none;
-      border-radius: var(--radius);
-      padding: 14px;
-      font-family: sans-serif;
-      font-size: 0.78rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-weight: 600;
-    }
+/* Style grid */
+.style-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.style-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 6px 4px; background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius); cursor: pointer; transition: all 0.15s;
+}
+.style-btn.active { border-color: var(--surface4); background: var(--surface2); }
+.style-btn:hover { border-color: var(--surface3); }
+.swatch { display: flex; gap: 1px; height: 14px; border-radius: 3px; overflow: hidden; width: 100%; }
+.swatch span { flex: 1; }
+.style-btn .name { font-size: 8px; color: var(--text2); text-align: center; letter-spacing: 0.3px; }
+.style-btn.active .name { color: var(--text); }
 
-    .render-btn:hover { background: var(--accent-light); }
-    .render-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+/* Aspect / option button grids */
+.aspect-grid, .marker-grid, .sep-grid, .mat-style-grid, .align-grid { display: flex; gap: 4px; }
+.aspect-btn, .marker-btn, .sep-btn, .mat-style-btn, .align-btn {
+  flex: 1; padding: 5px 4px; font-size: 10px; text-align: center;
+  background: var(--input-bg); color: var(--text2);
+  border: 1px solid var(--input-border);
+  border-radius: 16px; cursor: pointer; transition: all 0.15s;
+  letter-spacing: 0.5px; font-family: inherit; font-weight: 500;
+}
+.aspect-btn.active, .marker-btn.active, .sep-btn.active, .mat-style-btn.active, .align-btn.active {
+  border-color: var(--surface4); color: var(--text); background: var(--surface3);
+}
 
-    .download-btn {
-      background: none;
-      color: var(--accent);
-      border: 1.5px solid var(--accent);
-      border-radius: var(--radius);
-      padding: 10px;
-      font-family: sans-serif;
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-weight: 600;
-      display: none;
-    }
+/* Icon picker items */
+.icon-item { background:#0d0d0d; border:1px solid #222; border-radius:6px; padding:10px 4px; cursor:pointer; display:flex; flex-direction:column; align-items:center; }
+.icon-item:hover { border-color:#3a3a3a; }
+.icon-item:hover .fa-solid { color:#fff !important; }
+.icon-item.active { border-color:#fff; background:#1c1c1c; }
 
-    .download-btn:hover { background: var(--accent); color: #f0ebe3; }
+/* Download bar */
+#download-bar { display: flex; gap: 6px; }
+#download-bar button { flex: 1; }
 
-    .canvas-area {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
-      background: #e8e4de;
-      position: relative;
-    }
+/* Checkbox rows */
+.check-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+.check-row label { min-width: auto; font-size: 11px; cursor: pointer; color: var(--text2); }
 
-    .map-display {
-      max-width: 100%;
-      max-height: calc(100vh - 150px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.15);
-      display: none;
-    }
+/* Collapsible text sections */
+.text-section { border-top: 1px solid var(--divider); padding-top: 8px; margin-top: 8px; }
+.text-section:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+.text-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.text-section-header .label { font-size: 11px; color: var(--text); font-weight: 600; letter-spacing: 0.5px; }
+.text-section-header .toggle-vis {
+  font-size: 9px; color: var(--text3);
+  background: var(--input-bg); border: 1px solid var(--input-border);
+  border-radius: 3px; padding: 2px 6px; cursor: pointer; letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.text-section-header .toggle-vis:hover { color: var(--text2); }
+/* Marker cards */
+.marker-card { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: var(--radius); padding: 8px 10px; margin-bottom: 6px; }
+.marker-card-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.marker-icon-btn { background: var(--surface2); border: 1px solid var(--input-border); border-radius: 6px; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.marker-icon-btn:hover { border-color: var(--surface4); }
+.marker-label-input { flex: 1; }
+.marker-color-input { width: 32px; height: 32px; padding: 1px; border-radius: 4px; }
+.marker-delete-btn { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 14px; padding: 4px; border-radius: 4px; }
+.marker-delete-btn:hover { color: var(--text2); }
+.marker-card-pos { display: grid; grid-template-columns: 20px 1fr 30px 20px 1fr 30px; gap: 4px; align-items: center; }
+.marker-card-pos label { font-size: 10px; color: var(--text3); text-align: center; }
+.marker-card-pos .marker-x-val, .marker-card-pos .marker-y-val { font-size: 10px; color: var(--text2); text-align: right; }
+#addMarkerBtn { width: 100%; }
 
-    .placeholder {
-      text-align: center;
-      color: var(--text-muted);
-      font-family: sans-serif;
-    }
+/* Custom font picker */
+.font-picker { position: relative; flex: 1; }
+.font-picker-btn {
+  width: 100%; padding: 5px 10px; background: var(--input-bg);
+  border: 1px solid var(--input-border); border-radius: var(--radius);
+  color: var(--text); font-size: 13px; cursor: pointer; text-align: left;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.font-picker-btn:hover { border-color: var(--surface4); }
+.font-picker-btn .arrow { color: var(--text3); font-size: 10px; }
+.font-picker-dropdown {
+  display: none; position: fixed; z-index: 500;
+  background: #1a1a1a; border: 1px solid var(--input-border);
+  border-radius: var(--radius); overflow-y: auto; max-height: 280px;
+  min-width: 200px; box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+}
+.font-picker-dropdown.open { display: block; }
+.font-picker-option {
+  padding: 8px 12px; cursor: pointer; font-size: 15px;
+  color: var(--text2); white-space: nowrap;
+  transition: background 0.1s;
+}
+.font-picker-option:hover { background: var(--surface2); color: var(--text); }
+.font-picker-option.selected { color: var(--text); background: var(--surface3); }
 
-    .placeholder-icon {
-      font-size: 4rem;
-      margin-bottom: 16px;
-      opacity: 0.3;
-    }
-
-    .placeholder h2 {
-      font-size: 1.1rem;
-      font-weight: 400;
-      letter-spacing: 0.08em;
-      margin-bottom: 8px;
-      opacity: 0.6;
-    }
-
-    .placeholder p {
-      font-size: 0.8rem;
-      opacity: 0.4;
-    }
-
-    .loading {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      color: var(--text-muted);
-      font-family: sans-serif;
-      font-size: 0.85rem;
-    }
-
-    .spinner {
-      width: 36px;
-      height: 36px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .error-msg {
-      color: #c0392b;
-      font-family: sans-serif;
-      font-size: 0.82rem;
-      background: #fdecea;
-      border: 1px solid #f0c0ba;
-      border-radius: var(--radius);
-      padding: 10px 12px;
-      display: none;
-    }
-
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-    }
-
-    .coords-toggle {
-      font-family: sans-serif;
-      font-size: 0.72rem;
-      color: var(--accent-light);
-      cursor: pointer;
-      text-decoration: underline;
-      text-decoration-style: dotted;
-      background: none;
-      border: none;
-      padding: 0;
-      text-align: left;
-    }
-
-    .coords-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      display: none;
-    }
-
-    @media (max-width: 700px) {
-      .layout { grid-template-columns: 1fr; }
-      .canvas-area { padding: 20px; }
-    }
-  </style>
+/* Mobile */
+@media (max-width: 700px) {
+  body { flex-direction: column; }
+  #sidebar { width: 100%; min-width: auto; max-height: 45vh; overflow-y: auto; }
+  #preview-area { flex: 1; min-height: 0; }
+}
+</style>
 </head>
 <body>
 
-<header>
-  <h1>MapFrame</h1>
-  <span>Framed Map Art Generator</span>
-</header>
-
-<div class="layout">
-  <div class="sidebar">
-    <div class="form-group">
-      <label>Location</label>
-      <input type="text" id="location" placeholder="Chicago, IL" value="Chicago, IL" autocomplete="off">
-      <button class="coords-toggle" onclick="toggleCoords()">Use coordinates instead</button>
-      <div class="coords-row" id="coords-row">
-        <input type="number" id="lat" placeholder="Lat (41.85)" step="0.0001">
-        <input type="number" id="lon" placeholder="Lon (-87.65)" step="0.0001">
+<div id="sidebar">
+  <div id="sidebar-header">
+    <h1>MapFrame</h1>
+    <span>Map Art Generator</span>
+  </div>
+  <div id="sidebar-scroll">
+  <!-- Location -->
+  <div class="section">
+    <div class="section-title">Location</div>
+    <div class="tabs">
+      <div class="tab active" data-lmode="search">Search</div>
+      <div class="tab" data-lmode="zip">ZIP</div>
+      <div class="tab" data-lmode="coords">Coords</div>
+    </div>
+    <div id="loc-search" class="loc-panel">
+      <div class="row"><input type="text" id="searchInput" placeholder="City, address, landmark…"></div>
+    </div>
+    <div id="loc-zip" class="loc-panel" style="display:none">
+      <div class="row"><input type="text" id="zipInput" placeholder="ZIP code"></div>
+    </div>
+    <div id="loc-coords" class="loc-panel" style="display:none">
+      <div class="row">
+        <input type="text" id="latInput" placeholder="Latitude" style="flex:1">
+        <input type="text" id="lonInput" placeholder="Longitude" style="flex:1">
       </div>
     </div>
-
-    <div class="form-group">
+    <div class="row">
       <label>Radius</label>
-      <select id="radius">
-        <option value="0.8">Tight (0.8 km)</option>
-        <option value="1.5" selected>Standard (1.5 km)</option>
-        <option value="2.5">Wide (2.5 km)</option>
-        <option value="4">Broad (4 km)</option>
+      <select id="radiusSelect">
+        <option value="0.5">0.5 km</option>
+        <option value="1">1 km</option>
+        <option value="1.5" selected>1.5 km</option>
+        <option value="2">2 km</option>
+        <option value="3">3 km</option>
+        <option value="5">5 km</option>
+        <option value="8">8 km</option>
+        <option value="10">10 km</option>
       </select>
     </div>
+    <button class="btn-primary" id="generateBtn">Generate</button>
+    <button class="btn-secondary" id="removeLabelsBtn" style="width:100%;margin-top:6px;display:none;" title="Uses AI (Studio) to erase map labels — takes ~10s">✦ Remove Labels</button>
+  </div>
 
-    <div class="form-group">
+  <!-- Style -->
+  <div class="section">
+    <div class="section-title">Style</div>
+    <div class="style-grid" id="styleGrid"></div>
+    <div class="check-row" style="margin-top:8px">
+      <input type="checkbox" id="noLabelsCheck">
+      <label for="noLabelsCheck">No labels (clean map)</label>
+    </div>
+    <div id="noLabelsWarning" style="display:none; font-size:10px; color:var(--text3); margin-top:4px; padding:4px 6px; background:var(--surface2); border-radius:4px; line-height:1.4;">
+      ⚠ This style doesn't have a no-label variant. Use Positron, Voyager, or Dark for label-free maps.
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="section">
+    <div class="section-title">Canvas</div>
+    <div class="aspect-grid">
+      <div class="aspect-btn active" data-aspect="square">Square</div>
+      <div class="aspect-btn" data-aspect="wide">Wide</div>
+      <div class="aspect-btn" data-aspect="tall">Tall</div>
+      <div class="aspect-btn" data-aspect="custom">Custom</div>
+    </div>
+    <div id="customSize" style="display:none; margin-top:8px;">
+      <div class="row">
+        <label>W</label><input type="number" id="customW" value="1200" min="400" max="4000">
+        <label>H</label><input type="number" id="customH" value="1200" min="400" max="4000">
+      </div>
+    </div>
+    <div class="row" style="margin-top:8px;">
+      <label>Zoom</label>
+      <input type="range" id="zoomSlider" min="-3" max="3" step="1" value="0">
+      <span id="zoomVal" style="font-size:11px; min-width:28px; text-align:right;">13</span>
+    </div>
+  </div>
+
+  <!-- Mat (uneven, 4-side) -->
+  <div class="section">
+    <div class="section-title">Mat</div>
+    <div class="row">
+      <label>Top</label><input type="number" id="matTop" value="40" min="0" max="400" class="mat-input">
+      <label>Right</label><input type="number" id="matRight" value="40" min="0" max="400" class="mat-input">
+    </div>
+    <div class="row">
+      <label>Bottom</label><input type="number" id="matBottom" value="40" min="0" max="400" class="mat-input">
+      <label>Left</label><input type="number" id="matLeft" value="40" min="0" max="400" class="mat-input">
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="matLink" checked><label for="matLink">Link all sides</label>
+    </div>
+    <div class="row">
+      <label>Color</label><input type="color" id="matColor" value="#f0ebe3">
+    </div>
+    <div class="row">
       <label>Style</label>
-      <div class="style-grid">
-        <button class="style-btn active" data-style="minimal" onclick="selectStyle('minimal', this)">
-          <div class="style-preview preview-minimal"></div>
-          Minimal
-        </button>
-        <button class="style-btn" data-style="dark" onclick="selectStyle('dark', this)">
-          <div class="style-preview preview-dark"></div>
-          Dark
-        </button>
-        <button class="style-btn" data-style="sepia" onclick="selectStyle('sepia', this)">
-          <div class="style-preview preview-sepia"></div>
-          Sepia
-        </button>
+      <div class="mat-style-grid">
+        <div class="mat-style-btn active" data-matstyle="solid">Solid</div>
+        <div class="mat-style-btn" data-matstyle="double">Double</div>
+        <div class="mat-style-btn" data-matstyle="shadow">Shadow</div>
+        <div class="mat-style-btn" data-matstyle="inset">Inset</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Border -->
+  <div class="section">
+    <div class="section-title">Border</div>
+    <div class="row">
+      <label>Width</label><input type="number" id="borderWidth" value="2" min="0" max="20">
+      <label>Color</label><input type="color" id="borderColor" value="#2c2c2c">
+    </div>
+  </div>
+
+  <!-- Gradient Overlay -->
+  <div class="section">
+    <div class="section-title">Gradient Overlay</div>
+    <div class="check-row">
+      <input type="checkbox" id="gradEnable"><label for="gradEnable">Enable gradient</label>
+    </div>
+    <div id="gradOpts" style="display:none;">
+      <!-- Which edge(s) get the fade -->
+      <div class="row" style="margin-bottom:8px;">
+        <label style="min-width:auto;margin-right:6px;">Edge</label>
+        <div style="display:flex;gap:4px;flex:1;flex-wrap:wrap;">
+          <button class="grad-edge-btn active" data-edge="bottom" style="flex:1;padding:4px;font-size:10px;border-radius:12px;background:var(--surface3);border:1px solid var(--surface4);color:var(--text);cursor:pointer;">Bottom</button>
+          <button class="grad-edge-btn" data-edge="top" style="flex:1;padding:4px;font-size:10px;border-radius:12px;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text2);cursor:pointer;">Top</button>
+          <button class="grad-edge-btn" data-edge="left" style="flex:1;padding:4px;font-size:10px;border-radius:12px;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text2);cursor:pointer;">Left</button>
+          <button class="grad-edge-btn" data-edge="right" style="flex:1;padding:4px;font-size:10px;border-radius:12px;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text2);cursor:pointer;">Right</button>
+          <button class="grad-edge-btn" data-edge="vignette" style="flex:1;padding:4px;font-size:10px;border-radius:12px;background:var(--input-bg);border:1px solid var(--input-border);color:var(--text2);cursor:pointer;">Vignette</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>Color</label><input type="color" id="gradC1" value="#000000" style="width:48px;height:32px;padding:2px;">
+        <label>Opacity</label><input type="range" id="gradO1" min="0" max="1" step="0.05" value="0.75" style="flex:1"><span id="gradO1Val" style="font-size:11px;min-width:28px;">0.75</span>
+      </div>
+      <div class="row">
+        <label>Depth</label>
+        <input type="range" id="gradReach" min="5" max="100" step="5" value="40" style="flex:1">
+        <span id="gradReachVal" style="font-size:11px;min-width:28px;">40%</span>
+      </div>
+      <div class="row">
+        <label>Fade</label>
+        <select id="gradCurve">
+          <option value="smooth" selected>Smooth</option>
+          <option value="linear">Linear</option>
+          <option value="quick">Quick (holds then fades)</option>
+          <option value="gentle">Gentle (barely there)</option>
+        </select>
+      </div>
+      <!-- hidden compat fields -->
+      <input type="hidden" id="gradC2" value="#000000">
+      <input type="hidden" id="gradO2" value="0">
+    </div>
+  </div>
+
+  <!-- Label & Text (per-element controls) -->
+  <div class="section">
+    <div class="section-title">Label &amp; Text</div>
+
+    
+
+    <!-- Title -->
+    <div class="text-section">
+      <div class="text-section-header">
+        <span class="label">Title</span>
+        <button class="toggle-vis" id="titleVisBtn" data-target="title">Hide</button>
+      </div>
+      <div id="titleControls">
+        <div class="row"><input type="text" id="titleInput" placeholder="CITY NAME"></div>
+        <div class="row">
+          <label>Size</label><input type="number" id="titleSize" value="36" min="8" max="120">
+          <label>Color</label><input type="color" id="titleColor" value="#333333">
+        </div>
+        <div class="row">
+          <label>Font</label>
+          <div class="font-picker" id="titleFontPicker"><button class="font-picker-btn" data-picker="titleFont"><span class="fp-label">Georgia</span><span class="arrow">▼</span></button><div class="font-picker-dropdown" id="titleFontDropdown"></div></div>
+        </div>
+        <div class="row">
+          <label>Weight</label>
+          <select id="titleWeight">
+            <option value="300">Light</option>
+            <option value="400">Normal</option>
+            <option value="600">Semi-bold</option>
+            <option value="700" selected>Bold</option>
+          </select>
+          <label>Spacing</label><input type="number" id="titleSpacing" value="4" min="0" max="30">
+        </div>
+        <div class="row">
+          <label>X</label><input type="range" id="titleX" min="0" max="100" value="50"><span id="titleXVal" style="font-size:11px;min-width:28px;">50%</span>
+        </div>
+        <div class="row">
+          <label>Y</label><input type="range" id="titleY" min="0" max="100" value="85"><span id="titleYVal" style="font-size:11px;min-width:28px;">85%</span>
+        </div>
+        <div class="row">
+          <label>Align</label>
+          <div class="align-grid">
+            <div class="align-btn" data-align="left" data-for="title">L</div>
+            <div class="align-btn active" data-align="center" data-for="title">C</div>
+            <div class="align-btn" data-align="right" data-for="title">R</div>
+          </div>
+          <div class="check-row" style="margin:0; margin-left:8px;">
+            <input type="checkbox" id="titleUC" checked><label for="titleUC" style="font-size:11px;">UC</label>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="form-group">
-      <label>Label (optional)</label>
-      <input type="text" id="map-label" placeholder="City name" autocomplete="off">
-      <input type="text" id="map-sublabel" placeholder="Subtitle or coordinates" autocomplete="off" style="margin-top:6px">
+    <!-- Subtitle -->
+    <div class="text-section">
+      <div class="text-section-header">
+        <span class="label">Subtitle</span>
+        <button class="toggle-vis" id="subtitleVisBtn" data-target="subtitle">Hide</button>
+      </div>
+      <div id="subtitleControls">
+        <div class="row"><input type="text" id="subtitleInput" placeholder="Country · Coordinates"></div>
+        <div class="row">
+          <label>Size</label><input type="number" id="subtitleSize" value="14" min="6" max="60">
+          <label>Color</label><input type="color" id="subtitleColor" value="#888888">
+        </div>
+        <div class="row">
+          <label>Font</label>
+          <div class="font-picker" id="subtitleFontPicker"><button class="font-picker-btn" data-picker="subtitleFont"><span class="fp-label">Georgia</span><span class="arrow">▼</span></button><div class="font-picker-dropdown" id="subtitleFontDropdown"></div></div>
+        </div>
+        <div class="row">
+          <label>Weight</label>
+          <select id="subtitleWeight">
+            <option value="300">Light</option>
+            <option value="400" selected>Normal</option>
+            <option value="600">Semi-bold</option>
+            <option value="700">Bold</option>
+          </select>
+          <label>Spacing</label><input type="number" id="subtitleSpacing" value="2" min="0" max="30">
+        </div>
+        <div class="row">
+          <label>X</label><input type="range" id="subtitleX" min="0" max="100" value="50"><span id="subtitleXVal" style="font-size:11px;min-width:28px;">50%</span>
+        </div>
+        <div class="row">
+          <label>Y</label><input type="range" id="subtitleY" min="0" max="100" value="92"><span id="subtitleYVal" style="font-size:11px;min-width:28px;">92%</span>
+        </div>
+        <div class="row">
+          <label>Align</label>
+          <div class="align-grid">
+            <div class="align-btn" data-align="left" data-for="subtitle">L</div>
+            <div class="align-btn active" data-align="center" data-for="subtitle">C</div>
+            <div class="align-btn" data-align="right" data-for="subtitle">R</div>
+          </div>
+          <div class="check-row" style="margin:0; margin-left:8px;">
+            <input type="checkbox" id="subtitleUC" checked><label for="subtitleUC" style="font-size:11px;">UC</label>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="error-msg" id="error-msg"></div>
-
-    <button class="render-btn" onclick="renderMap()" id="render-btn">Generate Map</button>
-    <button class="download-btn" onclick="downloadSVG()" id="download-btn">Download SVG</button>
-    <button class="download-btn" onclick="downloadPNG()" id="download-png" style="display:none">Download PNG (1200px)</button>
+    <!-- Coords / Tagline -->
+    <div class="text-section">
+      <div class="text-section-header">
+        <span class="label">Coords / Tagline</span>
+        <button class="toggle-vis" id="coordsVisBtn" data-target="coords">Hide</button>
+      </div>
+      <div id="coordsControls">
+        <div class="row"><input type="text" id="coordsInput" placeholder="Auto-fills with coordinates"></div>
+        <div class="check-row">
+          <input type="checkbox" id="showCoords"><label for="showCoords">Auto-fill coordinates</label>
+        </div>
+        <div class="row">
+          <label>Size</label><input type="number" id="coordsSize" value="12" min="6" max="60">
+          <label>Color</label><input type="color" id="coordsColor" value="#888888">
+        </div>
+        <div class="row">
+          <label>Font</label>
+          <div class="font-picker" id="coordsFontPicker"><button class="font-picker-btn" data-picker="coordsFont"><span class="fp-label">Georgia</span><span class="arrow">▼</span></button><div class="font-picker-dropdown" id="coordsFontDropdown"></div></div>
+        </div>
+        <div class="row">
+          <label>Weight</label>
+          <select id="coordsWeight">
+            <option value="300">Light</option>
+            <option value="400" selected>Normal</option>
+            <option value="600">Semi-bold</option>
+            <option value="700">Bold</option>
+          </select>
+          <label>Spacing</label><input type="number" id="coordsSpacing" value="1" min="0" max="30">
+        </div>
+        <div class="row">
+          <label>X</label><input type="range" id="coordsX" min="0" max="100" value="50"><span id="coordsXVal" style="font-size:11px;min-width:28px;">50%</span>
+        </div>
+        <div class="row">
+          <label>Y</label><input type="range" id="coordsY" min="0" max="100" value="96"><span id="coordsYVal" style="font-size:11px;min-width:28px;">96%</span>
+        </div>
+        <div class="row">
+          <label>Align</label>
+          <div class="align-grid">
+            <div class="align-btn" data-align="left" data-for="coords">L</div>
+            <div class="align-btn active" data-align="center" data-for="coords">C</div>
+            <div class="align-btn" data-align="right" data-for="coords">R</div>
+          </div>
+          <div class="check-row" style="margin:0; margin-left:8px;">
+            <input type="checkbox" id="coordsUC"><label for="coordsUC" style="font-size:11px;">UC</label>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="canvas-area" id="canvas-area">
-    <div class="placeholder" id="placeholder">
-      <div class="placeholder-icon">🗺</div>
-      <h2>Enter a location and generate</h2>
-      <p>Styled map art, ready to frame and print</p>
+  <!-- Panel Style -->
+  <div class="section">
+    <div class="section-title">Panel Style</div>
+    <div class="check-row">
+      <input type="checkbox" id="panelEnable"><label for="panelEnable">External panel below map</label>
     </div>
-    <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <span>Fetching map data...</span>
+    <div id="panelOpts" style="display:none;">
+      <div class="row">
+        <label>Height</label><input type="number" id="panelHeight" value="120" min="40" max="400">
+        <label>BG</label><input type="color" id="panelBgColor" value="#f0ebe3">
+      </div>
+      <div class="row">
+        <label>Sep</label>
+        <div class="sep-grid">
+          <div class="sep-btn active" data-sep="line">Line</div>
+          <div class="sep-btn" data-sep="double">Double</div>
+          <div class="sep-btn" data-sep="dots">Dots</div>
+          <div class="sep-btn" data-sep="diamond">◆</div>
+          <div class="sep-btn" data-sep="none">None</div>
+        </div>
+      </div>
+      <div class="row">
+        <label>Sep Color</label><input type="color" id="sepColor" value="#333333">
+      </div>
     </div>
-    <img id="map-display" class="map-display" alt="Generated map">
+  </div>
+
+  <!-- Process -->
+  <div class="section">
+    <div class="section-title">Process</div>
+    <div class="row">
+      <label>Contrast</label>
+      <input type="range" id="procContrast" min="0.5" max="3" step="0.05" value="1" style="flex:1">
+      <span id="procContrastVal" style="font-size:11px;min-width:32px;">1.0×</span>
+    </div>
+    <div class="row">
+      <label>Black pt</label>
+      <input type="range" id="procBlackPt" min="0" max="200" step="5" value="0" style="flex:1">
+      <span id="procBlackPtVal" style="font-size:11px;min-width:32px;">0</span>
+    </div>
+    <div class="row">
+      <label>Brightness</label>
+      <input type="range" id="procBright" min="0.3" max="2" step="0.05" value="1" style="flex:1">
+      <span id="procBrightVal" style="font-size:11px;min-width:32px;">1.0×</span>
+    </div>
+    <div class="row">
+      <label>Saturation</label>
+      <input type="range" id="procSat" min="0" max="3" step="0.1" value="1" style="flex:1">
+      <span id="procSatVal" style="font-size:11px;min-width:32px;">1.0×</span>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
+      <label class="check-row" style="margin:0;flex:1"><input type="checkbox" id="procNorm"> <span>Normalize</span></label>
+      <label class="check-row" style="margin:0;flex:1"><input type="checkbox" id="procGray"> <span>Grayscale</span></label>
+      <label class="check-row" style="margin:0;flex:1"><input type="checkbox" id="procInvert"> <span>Invert</span></label>
+    </div>
+    <button class="btn-secondary" id="procApplyBtn" style="width:100%;margin-top:8px;">Apply &amp; Regenerate</button>
+  </div>
+
+  <!-- Markers -->
+  <div class="section">
+    <div class="section-title">Markers</div>
+    <button class="btn-primary" id="addMarkerBtn">+ Add Marker</button>
+    <div id="markerList" style="margin-top:8px;"></div>
+  </div>
+
+  <!-- Download -->
+  <div class="section">
+    <div class="section-title">Download</div>
+    <div id="download-bar">
+      <button class="btn-primary" id="downloadBtn" disabled>&#11015; PNG</button>
+      <button class="btn-secondary" id="copyLinkBtn">&#128279; Copy Link</button>
+      <button class="btn-secondary" id="resetBtn" style="opacity:0.6">&#8635; Reset</button>
+    </div>
+    </div><!-- end sidebar-scroll -->
+  </div><!-- extra close -->
+</div><!-- end sidebar -->
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Preview Area: layered HTML/CSS composition                 -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="preview-area">
+  <div id="spinner"></div>
+  <span id="placeholder">Enter a location and click Generate</span>
+
+  <div id="preview-wrapper">
+    <!-- Mat background (fills the whole wrapper) -->
+    <div id="mat-bg"></div>
+
+    <!-- Mat style decoration (double line, shadow, inset) -->
+    <div id="mat-decoration" style="position:absolute; z-index:0; pointer-events:none;"></div>
+
+    <!-- Map image -->
+    <img id="map-layer" alt="Map" crossorigin="anonymous">
+
+    <!-- Gradient overlay (over the map) -->
+    <div id="gradient-overlay"></div>
+
+    <!-- Border overlay (over the map) -->
+    <div id="border-overlay"></div>
+
+    <!-- Marker layer (over the map) -->
+    <div id="marker-layer"></div>
+
+    <!-- Text layer (covers entire wrapper including mat) -->
+    <div id="text-layer">
+      <div class="text-el align-center" id="text-title"></div>
+      <div class="text-el align-center" id="text-subtitle"></div>
+      <div class="text-el align-center" id="text-coords"></div>
+    </div>
+
+    <!-- Panel below map -->
+    <div id="panel-layer">
+      <canvas id="panel-separator" height="20"></canvas>
+    </div>
+  </div>
+</div>
+
+<div id="icon-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#141414; border:1px solid #2a2a2a; border-radius:12px; padding:20px; width:min(480px,90vw); max-height:75vh; overflow-y:auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <span style="font-size:13px; font-weight:600; color:#fff; letter-spacing:1px; text-transform:uppercase;">Choose Icon</span>
+      <button id="icon-modal-close" style="background:none; border:none; color:#666; font-size:18px; cursor:pointer; border-radius:50%; width:28px; height:28px;">&#10005;</button>
+    </div>
+    <div id="icon-grid" style="display:grid; grid-template-columns:repeat(5,1fr); gap:8px;"></div>
   </div>
 </div>
 
 <script>
-let currentSVG = null;
-let selectedStyle = 'minimal';
-let showCoords = false;
+(function() {
+  "use strict";
 
-function selectStyle(style, btn) {
-  selectedStyle = style;
-  document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
+  // ══════════════════════════════════════════════════════════════
+  // State
+  // ══════════════════════════════════════════════════════════════
+  let locMode = "search";
+  let currentStyle = "dark";
+  let aspect = "square";
+  let markers = [];
+  let _iconPickerCallback = null;
+  let matStyleVal = "solid";
+  let sepStyle = "line";
+  let lastCenter = null;
+  let lastDisplayName = "";
+  let mapLoaded = false;
 
-function toggleCoords() {
-  showCoords = !showCoords;
-  const row = document.getElementById('coords-row');
-  row.style.display = showCoords ? 'grid' : 'none';
-  document.querySelector('.coords-toggle').textContent = showCoords ? 'Use city name instead' : 'Use coordinates instead';
-}
+  // Per-text-element visibility
+  let titleVisible = true, subtitleVisible = true, coordsVisible = true;
+  // Per-text-element alignment
+  let titleAlign = "center", subtitleAlign = "center", coordsAlign = "center";
 
-async function renderMap() {
-  const locationInput = document.getElementById('location').value.trim();
-  const latInput = document.getElementById('lat').value.trim();
-  const lonInput = document.getElementById('lon').value.trim();
-  const radius = document.getElementById('radius').value;
-  const labelLine1 = document.getElementById('map-label').value.trim();
-  const labelLine2 = document.getElementById('map-sublabel').value.trim();
-  const label = [labelLine1, labelLine2].filter(Boolean).join('\n');
+  const STYLES = {
+    // Light
+    positron:     { name:"Positron",   swatch:["#f8f5f0","#aad3df","#c8e6c0","#e8e0d0"], clean:"positron_nolabels" },
+    voyager:      { name:"Voyager",    swatch:["#f5f2ec","#aad3df","#c8e6c0","#f0e8d0"], clean:"voyager_nolabels" },
+    mt_basic:     { name:"Basic",      swatch:["#f4f0e8","#b8d4e4","#d8e8c8","#ece4d8"] },
+    // Artistic
+    mt_aquarelle: { name:"Aquarelle",  swatch:["#f0e8d4","#c8d4b8","#d8c8a8","#e8d8bc"] },
+    mt_toner:     { name:"Toner",      swatch:["#000000","#ffffff","#333333","#888888"], clean:"mt_toner_bg" },
+    // Colorful/rich
+    mt_streets:   { name:"Streets",    swatch:["#f8f4f0","#aad3df","#d4e8c0","#f0e8d8"] },
+    mt_outdoor:   { name:"Outdoor",    swatch:["#f0ece4","#8bbcd4","#c8d4a0","#e8d8c0"] },
+    mt_topo:      { name:"Topo",       swatch:["#f4efe6","#9ec8d8","#c0d4a8","#e4d8bc"] },
+    mt_winter:    { name:"Winter",     swatch:["#eef4f8","#b8d4e8","#d0e4d0","#f0f0f0"] },
+    mt_satellite: { name:"Satellite",  swatch:["#2a3a28","#1e3050","#1a2a18","#202820"] },
+    // Dark
+    dark:         { name:"Dark",       swatch:["#111827","#1e3a52","#0f172a","#1e293b"], clean:"dark_nolabels" },
+    mt_dark:      { name:"Dark Viz",   swatch:["#0a0a12","#1a1a2a","#0d0d1a","#111122"] },
+    // Minimal/mono
+    esri_dark_gray: { name:"Gray Dark",  swatch:["#2a2a2a","#1a1a1a","#3a3a3a","#111111"] },
+    mt_backdrop:    { name:"Backdrop",   swatch:["#1a1a1a","#2a2a2a","#111111","#0d0d0d"] },
+  };
 
-  const errEl = document.getElementById('error-msg');
-  errEl.style.display = 'none';
+  // No-label variants (used when "No labels" checkbox is checked + style has a clean key)
+  const NOLABEL_STYLES = {
+    positron_nolabels: true,
+    voyager_nolabels:  true,
+    mt_dark_nolabels:  true,
+  };
 
-  if (!locationInput && (!latInput || !lonInput)) {
-    errEl.textContent = 'Please enter a location or coordinates.';
-    errEl.style.display = 'block';
-    return;
+  // ══════════════════════════════════════════════════════════════
+  // DOM refs
+  // ══════════════════════════════════════════════════════════════
+  const $ = id => document.getElementById(id);
+  const searchInput = $("searchInput"), zipInput = $("zipInput");
+  const latInput = $("latInput"), lonInput = $("lonInput");
+  const radiusSelect = $("radiusSelect"), generateBtn = $("generateBtn");
+  const procContrast = $("procContrast"), procBright = $("procBright"), procSat = $("procSat"), procBlackPt = $("procBlackPt");
+  const procGray = $("procGray"), procInvert = $("procInvert"), procNorm = $("procNorm");
+
+  // Process slider labels
+  procContrast.oninput = () => { $("procContrastVal").textContent = parseFloat(procContrast.value).toFixed(1) + "×"; };
+  procBright.oninput   = () => { $("procBrightVal").textContent   = parseFloat(procBright.value).toFixed(1) + "×"; };
+  procBlackPt.oninput  = () => { $("procBlackPtVal").textContent  = procBlackPt.value; };
+  procSat.oninput      = () => { $("procSatVal").textContent      = parseFloat(procSat.value).toFixed(1) + "×"; };
+
+  function getProcParams() {
+    return {
+      contrast:   parseFloat(procContrast.value),
+      brightness: parseFloat(procBright.value),
+      saturation: parseFloat(procSat.value),
+      blackPoint: parseFloat(procBlackPt.value),
+      normalize:  procNorm.checked,
+      grayscale:  procGray.checked,
+      invert:     procInvert.checked
+    };
   }
 
-  document.getElementById('render-btn').disabled = true;
-  document.getElementById('placeholder').style.display = 'none';
-  document.getElementById('loading').style.display = 'flex';
-  document.getElementById('map-display').style.display = 'none';
-  document.getElementById('download-btn').style.display = 'none';
-  document.getElementById('download-png').style.display = 'none';
+  $("procApplyBtn").onclick = () => { if (lastCenter) generate(); };
+  const styleGrid = $("styleGrid");
+  const zoomSlider = $("zoomSlider"), zoomVal = $("zoomVal");
+  const customW = $("customW"), customH = $("customH");
 
-  const body = { style: selectedStyle, radius, label };
+  // Mat
+  const matTop = $("matTop"), matRight = $("matRight");
+  const matBottom = $("matBottom"), matLeft = $("matLeft");
+  const matLink = $("matLink"), matColor = $("matColor");
 
-  if (showCoords && latInput && lonInput) {
-    body.lat = latInput;
-    body.lon = lonInput;
-  } else {
-    body.query = locationInput;
-  }
+  // Border
+  const borderWidthEl = $("borderWidth"), borderColorEl = $("borderColor");
 
-  try {
-    const res = await fetch('/api/render', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+  // Gradient
+  const gradEnable = $("gradEnable"), gradOpts = $("gradOpts");
+  const gradDir = $("gradDir"), gradC1 = $("gradC1"), gradO1 = $("gradO1");
+  const gradC2 = $("gradC2"), gradO2 = $("gradO2");
+  const gradReach = $("gradReach"), gradCurve = $("gradCurve");
+  let gradEdge = "bottom";
+
+  // Edge buttons
+  document.querySelectorAll(".grad-edge-btn").forEach(btn => {
+    btn.onclick = () => {
+      gradEdge = btn.dataset.edge;
+      document.querySelectorAll(".grad-edge-btn").forEach(b => {
+        const active = b.dataset.edge === gradEdge;
+        b.style.background = active ? "var(--surface3)" : "var(--input-bg)";
+        b.style.borderColor = active ? "var(--surface4)" : "var(--input-border)";
+        b.style.color = active ? "var(--text)" : "var(--text2)";
+      });
+      updatePreview(); saveToLocalStorage();
+    };
+  });
+
+  // Text elements
+  const titleInput = $("titleInput"), titleSize = $("titleSize"), titleColor = $("titleColor");
+  const titleWeight = $("titleWeight"), titleSpacing = $("titleSpacing");
+  const titleX = $("titleX"), titleY = $("titleY"), titleUC = $("titleUC");
+  const subtitleInput = $("subtitleInput"), subtitleSize = $("subtitleSize"), subtitleColor = $("subtitleColor");
+  const subtitleWeight = $("subtitleWeight"), subtitleSpacing = $("subtitleSpacing");
+  const subtitleX = $("subtitleX"), subtitleY = $("subtitleY"), subtitleUC = $("subtitleUC");
+  const coordsInput = $("coordsInput"), coordsSize = $("coordsSize"), coordsColor = $("coordsColor");
+  const coordsWeight = $("coordsWeight"), coordsSpacing = $("coordsSpacing");
+  const coordsX = $("coordsX"), coordsY = $("coordsY"), coordsUCEl = $("coordsUC");
+  const showCoords = $("showCoords");
+  // Font picker setup
+  const FONTS = [
+    { label: "Georgia",            value: "Georgia, serif" },
+    { label: "Times New Roman",    value: "'Times New Roman', serif" },
+    { label: "Libre Baskerville",  value: "'Libre Baskerville', serif" },
+    { label: "Merriweather",       value: "'Merriweather', serif" },
+    { label: "Playfair Display",   value: "'Playfair Display', serif" },
+    { label: "Cormorant Garamond", value: "'Cormorant Garamond', serif" },
+    { label: "Spectral",           value: "'Spectral', serif" },
+    { label: "DM Serif Display",   value: "'DM Serif Display', serif" },
+    { label: "Abril Fatface",      value: "'Abril Fatface', cursive" },
+    { label: "Cinzel",             value: "'Cinzel', serif" },
+    { label: "Montserrat",         value: "'Montserrat', sans-serif" },
+    { label: "Raleway",            value: "'Raleway', sans-serif" },
+    { label: "Work Sans",          value: "'Work Sans', sans-serif" },
+    { label: "Josefin Sans",       value: "'Josefin Sans', sans-serif" },
+    { label: "Oswald",             value: "'Oswald', sans-serif" },
+    { label: "Bebas Neue",         value: "'Bebas Neue', cursive" },
+    { label: "Roboto",             value: "'Roboto', sans-serif" },
+    { label: "Roboto Condensed",   value: "'Roboto Condensed', sans-serif" },
+    { label: "Open Sans",          value: "'Open Sans', sans-serif" },
+    { label: "Lato",               value: "'Lato', sans-serif" },
+    { label: "Helvetica",          value: "Helvetica, sans-serif" },
+    { label: "Arial",              value: "Arial, sans-serif" },
+    { label: "Roboto Mono",        value: "'Roboto Mono', monospace" },
+    { label: "Courier New",        value: "'Courier New', monospace" },
+  ];
+
+  const _fontValues = {}; // id -> current value
+
+  function initFontPicker(id, defaultValue, onChange) {
+    _fontValues[id] = defaultValue || FONTS[0].value;
+    const btn = document.querySelector(`[data-picker="${id}"]`);
+    const dropdown = $(`${id}Dropdown`);
+    if (!btn || !dropdown) return;
+
+    // Build options
+    FONTS.forEach(f => {
+      const opt = document.createElement("div");
+      opt.className = "font-picker-option" + (f.value === _fontValues[id] ? " selected" : "");
+      opt.style.fontFamily = f.value;
+      opt.textContent = f.label;
+      opt.dataset.value = f.value;
+      opt.onclick = (e) => {
+        e.stopPropagation();
+        _fontValues[id] = f.value;
+        btn.querySelector(".fp-label").textContent = f.label;
+        btn.querySelector(".fp-label").style.fontFamily = f.value;
+        dropdown.querySelectorAll(".font-picker-option").forEach(o => o.classList.toggle("selected", o.dataset.value === f.value));
+        closeAllFontPickers();
+        onChange && onChange(f.value);
+        updatePreview(); saveToLocalStorage();
+      };
+      dropdown.appendChild(opt);
     });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Server error');
+    // Set initial label
+    const initial = FONTS.find(f => f.value === _fontValues[id]) || FONTS[0];
+    btn.querySelector(".fp-label").textContent = initial.label;
+    btn.querySelector(".fp-label").style.fontFamily = initial.value;
 
-    currentSVG = data.svg;
-
-    // Display as data URL
-    const blob = new Blob([data.svg], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const img = document.getElementById('map-display');
-    img.src = url;
-    img.style.display = 'block';
-    document.getElementById('download-btn').style.display = 'block';
-    document.getElementById('download-png').style.display = 'block';
-
-    // Prefill label if empty
-    if (!labelLine1 && data.displayName) {
-      const parts = data.displayName.split(',');
-      document.getElementById('map-label').value = parts[0].trim();
-      if (parts[1]) document.getElementById('map-sublabel').value = parts[1].trim();
-    }
-  } catch (err) {
-    errEl.textContent = 'Error: ' + err.message;
-    errEl.style.display = 'block';
-    document.getElementById('placeholder').style.display = 'block';
-  } finally {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('render-btn').disabled = false;
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const isOpen = dropdown.classList.contains("open");
+      closeAllFontPickers();
+      if (!isOpen) {
+        const rect = btn.getBoundingClientRect();
+        const dropH = 280;
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const topPos = spaceBelow >= dropH ? rect.bottom + 4 : rect.top - dropH - 4;
+        dropdown.style.top = Math.max(4, topPos) + "px";
+        dropdown.style.left = rect.left + "px";
+        dropdown.style.width = Math.max(220, rect.width) + "px";
+        dropdown.classList.add("open");
+      }
+    };
   }
-}
 
-function downloadSVG() {
-  if (!currentSVG) return;
-  const blob = new Blob([currentSVG], { type: 'image/svg+xml' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  const loc = document.getElementById('location').value.replace(/\s+/g, '-').toLowerCase() || 'mapframe';
-  a.download = `mapframe-${loc}-${selectedStyle}.svg`;
-  a.click();
-}
+  function closeAllFontPickers() {
+    document.querySelectorAll(".font-picker-dropdown.open").forEach(d => d.classList.remove("open"));
+  }
+  document.addEventListener("click", closeAllFontPickers);
 
-function downloadPNG() {
-  if (!currentSVG) return;
-  const img = new Image();
-  const blob = new Blob([currentSVG], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
-  img.onload = function() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1200;
-    canvas.height = 1200;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, 1200, 1200);
-    canvas.toBlob(function(pngBlob) {
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(pngBlob);
-      const loc = document.getElementById('location').value.replace(/\s+/g, '-').toLowerCase() || 'mapframe';
-      a.download = `mapframe-${loc}-${selectedStyle}.png`;
-      a.click();
-    }, 'image/png');
-    URL.revokeObjectURL(url);
-  };
-  img.src = url;
-}
+  // Font value accessors (duck-type like a select .value)
+  const titleFont    = { get value() { return _fontValues["titleFont"]    || FONTS[0].value; } };
+  const subtitleFont = { get value() { return _fontValues["subtitleFont"] || FONTS[0].value; } };
+  const coordsFont   = { get value() { return _fontValues["coordsFont"]   || FONTS[0].value; } };
 
-// Enter key support
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('location').addEventListener('keydown', e => {
-    if (e.key === 'Enter') renderMap();
+  initFontPicker("titleFont",    FONTS[0].value);
+  initFontPicker("subtitleFont", FONTS[0].value);
+  initFontPicker("coordsFont",   FONTS[0].value);
+
+  // Panel
+  const panelEnable = $("panelEnable"), panelOpts = $("panelOpts");
+  const panelHeight = $("panelHeight"), panelBgColor = $("panelBgColor"), sepColor = $("sepColor");
+
+  // Markers
+  const markerListEl = $("markerList");
+
+  // Download
+  const downloadBtn = $("downloadBtn"), copyLinkBtn = $("copyLinkBtn");
+
+  // Preview DOM
+  const previewWrapper = $("preview-wrapper");
+  const matBg = $("mat-bg");
+  const matDecoration = $("mat-decoration");
+  const mapLayer = $("map-layer");
+  const gradientOverlay = $("gradient-overlay");
+  const borderOverlay = $("border-overlay");
+  const markerLayer = $("marker-layer");
+  const textLayer = $("text-layer");
+  const textTitle = $("text-title");
+  const textSubtitle = $("text-subtitle");
+  const textCoords = $("text-coords");
+  const panelLayer = $("panel-layer");
+  const panelSeparator = $("panel-separator");
+  const placeholder = $("placeholder");
+  const spinner = $("spinner");
+
+  // ══════════════════════════════════════════════════════════════
+  // Build style grid
+  // ══════════════════════════════════════════════════════════════
+  Object.entries(STYLES).forEach(([key, s]) => {
+    const btn = document.createElement("div");
+    btn.className = "style-btn" + (key === currentStyle ? " active" : "");
+    btn.dataset.style = key;
+    btn.innerHTML = `<div class="swatch">${s.swatch.map(c => `<span style="background:${c}"></span>`).join("")}</div><div class="name">${s.name}</div>`;
+    btn.onclick = () => {
+      currentStyle = key;
+      styleGrid.querySelectorAll(".style-btn").forEach(b => b.classList.toggle("active", b.dataset.style === key));
+    };
+    styleGrid.appendChild(btn);
   });
-});
-</script>
 
+  // No-labels checkbox
+  document.getElementById("noLabelsCheck").onchange = () => { updateNoLabelsWarning(); saveToLocalStorage(); };
+
+  function updateNoLabelsWarning() {
+    const hasClean = STYLES[currentStyle] && STYLES[currentStyle].clean;
+    const row = document.getElementById("noLabelsCheck").closest(".check-row");
+    row.style.display = hasClean ? "" : "none";
+    document.getElementById("noLabelsWarning").style.display = "none";
+  }
+
+  // Also update warning when style changes
+  const _origStyleClick = styleGrid.onclick;
+  styleGrid.addEventListener("click", () => setTimeout(updateNoLabelsWarning, 0));
+  updateNoLabelsWarning(); // set correct state on load
+
+  function getEffectiveStyle() {
+    const noLabels = document.getElementById("noLabelsCheck").checked;
+    if (noLabels && STYLES[currentStyle] && STYLES[currentStyle].clean) {
+      return STYLES[currentStyle].clean;
+    }
+    return currentStyle;
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Tabs (location mode)
+  // ══════════════════════════════════════════════════════════════
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.onclick = () => {
+      locMode = tab.dataset.lmode;
+      document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t === tab));
+      document.querySelectorAll(".loc-panel").forEach(p => p.style.display = "none");
+      $("loc-" + locMode).style.display = "";
+    };
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  // Aspect ratio
+  // ══════════════════════════════════════════════════════════════
+  document.querySelectorAll(".aspect-btn").forEach(btn => {
+    btn.onclick = () => {
+      aspect = btn.dataset.aspect;
+      document.querySelectorAll(".aspect-btn").forEach(b => b.classList.toggle("active", b === btn));
+      $("customSize").style.display = aspect === "custom" ? "" : "none";
+    };
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  // Zoom
+  // ══════════════════════════════════════════════════════════════
+  function getActualZoom() {
+    const radiusKm = parseFloat(radiusSelect.value);
+    const base = Math.round(13.5 - Math.log2(radiusKm));
+    const adjust = parseInt(zoomSlider.value) || 0;
+    return Math.max(10, Math.min(16, base + adjust));
+  }
+  function updateZoomDisplay() { zoomVal.textContent = getActualZoom(); }
+  zoomSlider.oninput = updateZoomDisplay;
+  radiusSelect.onchange = updateZoomDisplay;
+  updateZoomDisplay();
+
+  // ══════════════════════════════════════════════════════════════
+  // Mat: linked sides
+  // ══════════════════════════════════════════════════════════════
+  const matInputs = [matTop, matRight, matBottom, matLeft];
+  matInputs.forEach(inp => {
+    inp.addEventListener("input", () => {
+      if (matLink.checked) {
+        const v = inp.value;
+        matInputs.forEach(other => { if (other !== inp) other.value = v; });
+      }
+      updatePreview();
+    });
+  });
+
+  // Mat style buttons
+  document.querySelectorAll(".mat-style-btn").forEach(btn => {
+    btn.onclick = () => {
+      matStyleVal = btn.dataset.matstyle;
+      document.querySelectorAll(".mat-style-btn").forEach(b => b.classList.toggle("active", b.dataset.matstyle === matStyleVal));
+      updatePreview();
+    };
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  // Gradient controls
+  // ══════════════════════════════════════════════════════════════
+  gradEnable.onchange = () => { gradOpts.style.display = gradEnable.checked ? "" : "none"; updatePreview(); };
+  gradO1.oninput = () => { $("gradO1Val").textContent = parseFloat(gradO1.value).toFixed(2); updatePreview(); saveToLocalStorage(); };
+  gradO2.oninput = () => { $("gradO2Val").textContent = parseFloat(gradO2.value).toFixed(2); updatePreview(); saveToLocalStorage(); };
+  gradReach.oninput = () => { $("gradReachVal").textContent = gradReach.value + "%"; updatePreview(); saveToLocalStorage(); };
+
+  // ══════════════════════════════════════════════════════════════
+  // Text alignment buttons
+  // ══════════════════════════════════════════════════════════════
+  document.querySelectorAll(".align-btn").forEach(btn => {
+    btn.onclick = () => {
+      const forEl = btn.dataset.for;
+      const align = btn.dataset.align;
+      document.querySelectorAll(`.align-btn[data-for="${forEl}"]`).forEach(b => b.classList.toggle("active", b === btn));
+      if (forEl === "title") titleAlign = align;
+      else if (forEl === "subtitle") subtitleAlign = align;
+      else if (forEl === "coords") coordsAlign = align;
+      updatePreview();
+    };
+  });
+
+  // Text visibility toggles
+  document.querySelectorAll(".toggle-vis").forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const target = btn.dataset.target;
+      if (target === "title") { titleVisible = !titleVisible; btn.textContent = titleVisible ? "Hide" : "Show"; }
+      else if (target === "subtitle") { subtitleVisible = !subtitleVisible; btn.textContent = subtitleVisible ? "Hide" : "Show"; }
+      else if (target === "coords") { coordsVisible = !coordsVisible; btn.textContent = coordsVisible ? "Hide" : "Show"; }
+      updatePreview();
+    };
+  });
+
+  // X/Y slider value displays
+  titleX.oninput = () => { $("titleXVal").textContent = titleX.value + "%"; updatePreview(); };
+  titleY.oninput = () => { $("titleYVal").textContent = titleY.value + "%"; updatePreview(); };
+  subtitleX.oninput = () => { $("subtitleXVal").textContent = subtitleX.value + "%"; updatePreview(); };
+  subtitleY.oninput = () => { $("subtitleYVal").textContent = subtitleY.value + "%"; updatePreview(); };
+  coordsX.oninput = () => { $("coordsXVal").textContent = coordsX.value + "%"; updatePreview(); };
+  coordsY.oninput = () => { $("coordsYVal").textContent = coordsY.value + "%"; updatePreview(); };
+
+  // ══════════════════════════════════════════════════════════════
+  // Panel toggle
+  // ══════════════════════════════════════════════════════════════
+  panelEnable.onchange = () => { panelOpts.style.display = panelEnable.checked ? "" : "none"; updatePreview(); };
+
+  // Separator buttons
+  document.querySelectorAll(".sep-btn").forEach(btn => {
+    btn.onclick = () => {
+      sepStyle = btn.dataset.sep;
+      document.querySelectorAll(".sep-btn").forEach(b => b.classList.toggle("active", b === btn));
+      updatePreview();
+    };
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  // Marker system
+  // ══════════════════════════════════════════════════════════════
+  $("addMarkerBtn").onclick = () => {
+    openIconPicker(ic => {
+      const marker = { id: Date.now(), icon: ic.name, unicode: ic.unicode, label: "", color: "#ffffff", x: 50, y: 50 };
+      markers.push(marker);
+      markerListEl.appendChild(createMarkerCard(marker));
+      updatePreview();
+      saveToLocalStorage();
+    });
+  };
+
+  function createMarkerCard(marker) {
+    const card = document.createElement("div");
+    card.className = "marker-card";
+    card.dataset.id = marker.id;
+    card.innerHTML = `
+      <div class="marker-card-top">
+        <button class="marker-icon-btn" title="Change icon">
+          <i class="fa-solid fa-${marker.icon}" style="color:${marker.color};font-size:18px;"></i>
+        </button>
+        <input type="text" class="marker-label-input" placeholder="Label (optional)" value="">
+        <input type="color" class="marker-color-input" value="${marker.color}">
+        <button class="marker-delete-btn">\u2715</button>
+      </div>
+      <div class="marker-card-pos">
+        <label>X</label><input type="range" class="marker-x" min="0" max="100" value="${marker.x}"><span class="marker-x-val">${marker.x}%</span>
+        <label>Y</label><input type="range" class="marker-y" min="0" max="100" value="${marker.y}"><span class="marker-y-val">${marker.y}%</span>
+      </div>
+    `;
+    card.querySelector(".marker-label-input").value = marker.label;
+    card.querySelector(".marker-icon-btn").onclick = () => openIconPicker(ic => { marker.icon = ic.name; marker.unicode = ic.unicode; refreshMarkerCard(card, marker); updatePreview(); saveToLocalStorage(); });
+    card.querySelector(".marker-label-input").oninput = e => { marker.label = e.target.value; updatePreview(); saveToLocalStorage(); };
+    card.querySelector(".marker-color-input").oninput = e => { marker.color = e.target.value; refreshMarkerCard(card, marker); updatePreview(); saveToLocalStorage(); };
+    card.querySelector(".marker-delete-btn").onclick = () => { markers = markers.filter(m => m.id !== marker.id); card.remove(); updatePreview(); saveToLocalStorage(); };
+    const xSlider = card.querySelector(".marker-x"), ySlider = card.querySelector(".marker-y");
+    xSlider.oninput = e => { marker.x = parseInt(e.target.value); card.querySelector(".marker-x-val").textContent = marker.x + "%"; updatePreview(); saveToLocalStorage(); };
+    ySlider.oninput = e => { marker.y = parseInt(e.target.value); card.querySelector(".marker-y-val").textContent = marker.y + "%"; updatePreview(); saveToLocalStorage(); };
+    return card;
+  }
+
+  function refreshMarkerCard(card, marker) {
+    card.querySelector(".marker-icon-btn").innerHTML = `<i class="fa-solid fa-${marker.icon}" style="color:${marker.color};font-size:18px;"></i>`;
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // FA Icon Picker
+  // ══════════════════════════════════════════════════════════════
+  const FA_ICONS = [
+    { name:"location-dot",     unicode:"\uf3c5" },
+    { name:"map-pin",          unicode:"\uf276" },
+    { name:"star",             unicode:"\uf005" },
+    { name:"heart",            unicode:"\uf004" },
+    { name:"house",            unicode:"\uf015" },
+    { name:"camera",           unicode:"\uf030" },
+    { name:"mountain",         unicode:"\uf6fc" },
+    { name:"tree",             unicode:"\uf1bb" },
+    { name:"anchor",           unicode:"\uf13d" },
+    { name:"flag",             unicode:"\uf024" },
+    { name:"coffee",           unicode:"\uf0f4" },
+    { name:"music",            unicode:"\uf001" },
+    { name:"graduation-cap",   unicode:"\uf19d" },
+    { name:"plane",            unicode:"\uf072" },
+    { name:"train",            unicode:"\uf238" },
+    { name:"bicycle",          unicode:"\uf206" },
+    { name:"car",              unicode:"\uf1b9" },
+    { name:"compass",          unicode:"\uf14e" },
+    { name:"landmark",         unicode:"\uf66f" },
+    { name:"building",         unicode:"\uf1ad" },
+    { name:"church",           unicode:"\uf51d" },
+    { name:"hospital",         unicode:"\uf0f8" },
+    { name:"utensils",         unicode:"\uf2e7" },
+    { name:"cocktail",         unicode:"\uf561" },
+    { name:"football",         unicode:"\uf44e" },
+    { name:"baseball",         unicode:"\uf433" },
+    { name:"basketball",       unicode:"\uf434" },
+    { name:"golf-ball",        unicode:"\uf450" },
+    { name:"swimming",         unicode:"\uf5c4" },
+    { name:"crown",            unicode:"\uf521" },
+    { name:"bolt",             unicode:"\uf0e7" },
+    { name:"fire",             unicode:"\uf06d" },
+    { name:"snowflake",        unicode:"\uf2dc" },
+    { name:"sun",              unicode:"\uf185" },
+    { name:"moon",             unicode:"\uf186" },
+    { name:"gem",              unicode:"\uf3a5" },
+  ];
+
+  const iconModal = $("icon-modal");
+  const iconGrid = $("icon-grid");
+
+  // Build icon grid
+  FA_ICONS.forEach(icon => {
+    const btn = document.createElement("button");
+    btn.className = "icon-item";
+    btn.dataset.name = icon.name;
+    btn.dataset.unicode = icon.unicode;
+    btn.innerHTML = `<i class="fa-solid fa-${icon.name}" style="font-size:18px; color:#aaa;"></i><span style="font-size:8px; color:#555; display:block; margin-top:4px; text-align:center;">${icon.name}</span>`;
+    btn.onclick = () => {
+      iconModal.style.display = "none";
+      if (_iconPickerCallback) _iconPickerCallback({ name: icon.name, unicode: icon.unicode });
+    };
+    iconGrid.appendChild(btn);
+  });
+
+  function openIconPicker(callback) {
+    _iconPickerCallback = callback;
+    iconModal.style.display = "flex";
+    iconGrid.querySelectorAll(".icon-item").forEach(b => b.classList.remove("active"));
+  }
+
+  // Close modal
+  $("icon-modal-close").onclick = () => { iconModal.style.display = "none"; };
+  iconModal.onclick = (e) => { if (e.target === iconModal) iconModal.style.display = "none"; };
+
+  // ══════════════════════════════════════════════════════════════
+  // Wire all controls to updatePreview()
+  // ══════════════════════════════════════════════════════════════
+  const liveControls = [
+    matColor, borderWidthEl, borderColorEl,
+    gradC1, gradReach, gradCurve,
+    titleInput, titleSize, titleColor, titleWeight, titleSpacing, titleUC,
+    subtitleInput, subtitleSize, subtitleColor, subtitleWeight, subtitleSpacing, subtitleUC,
+    coordsInput, coordsSize, coordsColor, coordsWeight, coordsSpacing, coordsUCEl, showCoords,
+    // titleFont, subtitleFont, coordsFont handled by custom picker
+    panelHeight, panelBgColor, sepColor
+  ];
+  liveControls.forEach(el => {
+    if (!el) return;
+    // color: use "input" for realtime (fires while picker is open); checkbox/select: "change"
+    const evt = (el.type === "checkbox" || el.tagName === "SELECT") ? "change" : "input";
+    el.addEventListener(evt, () => { updatePreview(); saveToLocalStorage(); });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  // Canvas size helper
+  // ══════════════════════════════════════════════════════════════
+  function getCanvasSize() {
+    switch (aspect) {
+      case "square": return { w: 1200, h: 1200 };
+      case "wide":   return { w: 1600, h: 1000 };
+      case "tall":   return { w: 1000, h: 1400 };
+      case "custom": return { w: parseInt(customW.value)||1200, h: parseInt(customH.value)||1200 };
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Hex to RGBA helper
+  // ══════════════════════════════════════════════════════════════
+  // Easing functions: t=0 is the edge (full opacity), t=1 is center (transparent)
+  function gradAlpha(t, maxAlpha, curve) {
+    // t: 0=edge (opaque), 1=inner (transparent)
+    let k;
+    if (curve === "smooth")  k = Math.pow(1 - t, 2);          // smooth quadratic
+    else if (curve === "quick") k = Math.pow(1 - t, 0.5);     // holds longer, drops fast
+    else if (curve === "gentle") k = Math.pow(1 - t, 4);      // barely there
+    else k = 1 - t;                                             // linear
+    return maxAlpha * Math.max(0, k);
+  }
+
+  function buildGradCss(color, opacity, reachPct, curve, edge) {
+    const reach = reachPct / 100;
+    const steps = 16;
+    const stops = [];
+    const dirMap = { bottom:"to top", top:"to bottom", left:"to right", right:"to left" };
+
+    if (edge === "vignette") {
+      // Radial vignette — handled separately
+      return null;
+    }
+
+    const dir = dirMap[edge] || "to top";
+    for (let i = 0; i <= steps; i++) {
+      const tNorm = i / steps;          // 0=edge side, 1=far side
+      const pct = tNorm * reach * 100;
+      const alpha = gradAlpha(tNorm, opacity, curve);
+      stops.push(`${hexToRgba(color, alpha)} ${pct.toFixed(1)}%`);
+    }
+    // Transparent from reach onwards
+    stops.push(`${hexToRgba(color, 0)} ${(reach * 100).toFixed(1)}%`);
+    if (reach < 1) stops.push(`${hexToRgba(color, 0)} 100%`);
+    return `linear-gradient(${dir}, ${stops.join(", ")})`;
+  }
+
+  function hexToRgba(hex, opacity) {
+    const r = parseInt(hex.slice(1,3), 16);
+    const g = parseInt(hex.slice(3,5), 16);
+    const b = parseInt(hex.slice(5,7), 16);
+    return `rgba(${r},${g},${b},${opacity})`;
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // updatePreview() — pure DOM/CSS, no canvas
+  // ══════════════════════════════════════════════════════════════
+  function updatePreview() {
+    if (!mapLoaded) return;
+
+    const size = getCanvasSize();
+    const mT = parseInt(matTop.value)||0, mR = parseInt(matRight.value)||0;
+    const mB = parseInt(matBottom.value)||0, mL = parseInt(matLeft.value)||0;
+    const bw = parseInt(borderWidthEl.value)||0;
+    const usePanelBelow = panelEnable.checked;
+    const pH = usePanelBelow ? (parseInt(panelHeight.value)||120) : 0;
+
+    const totalW = size.w + mL + mR;
+    const totalH = size.h + mT + mB + pH;
+
+    // ── Wrapper size ──
+    previewWrapper.style.width = totalW + "px";
+    previewWrapper.style.height = totalH + "px";
+
+    // ── Scale to fit available space ──
+    const area = document.getElementById("preview-area");
+    const availW = area.clientWidth * 0.92;
+    const availH = area.clientHeight * 0.92;
+    const scale = Math.min(availW / totalW, availH / totalH, 1);
+    previewWrapper.style.transform = `scale(${scale})`;
+    // Shrink the layout footprint so the wrapper doesn't push siblings
+    previewWrapper.style.marginTop = `${(totalH * scale - totalH) / 2}px`;
+    previewWrapper.style.marginBottom = `${(totalH * scale - totalH) / 2}px`;
+
+    // ── Mat background ──
+    matBg.style.background = matColor.value;
+
+    // ── Mat decoration ──
+    matDecoration.style.top = "0";
+    matDecoration.style.left = "0";
+    matDecoration.style.width = totalW + "px";
+    matDecoration.style.height = totalH + "px";
+    matDecoration.style.border = "none";
+    matDecoration.style.boxShadow = "none";
+    matDecoration.innerHTML = "";
+
+    if (matStyleVal === "double" && Math.min(mT,mR,mB,mL) > 8) {
+      const inset = 0.3;
+      matDecoration.style.border = "none";
+      const inner = document.createElement("div");
+      inner.style.cssText = `position:absolute; border:1px solid ${borderColorEl.value};
+        top:${mT*inset}px; left:${mL*inset}px;
+        width:${totalW - mL*inset*2}px; height:${totalH - mT*inset*2}px;
+        pointer-events:none;`;
+      matDecoration.appendChild(inner);
+    } else if (matStyleVal === "shadow") {
+      // Shadow on the map area
+      matDecoration.style.cssText = `position:absolute; z-index:0; pointer-events:none;
+        top:${mT}px; left:${mL}px; width:${size.w}px; height:${size.h}px;
+        box-shadow: 5px 5px 15px rgba(0,0,0,0.3); background:${matColor.value};`;
+    } else if (matStyleVal === "inset" && Math.min(mT,mR,mB,mL) > 6) {
+      const inner = document.createElement("div");
+      inner.style.cssText = `position:absolute; border:1px solid rgba(0,0,0,0.15);
+        top:${mT-4}px; left:${mL-4}px;
+        width:${size.w+8}px; height:${size.h+8}px;
+        pointer-events:none;`;
+      matDecoration.appendChild(inner);
+    }
+
+    // ── Map layer ──
+    mapLayer.style.position = "absolute";
+    mapLayer.style.top = mT + "px";
+    mapLayer.style.left = mL + "px";
+    mapLayer.style.width = size.w + "px";
+    mapLayer.style.height = size.h + "px";
+
+    // ── Gradient overlay ──
+    if (gradEnable.checked) {
+      gradientOverlay.style.display = "block";
+      gradientOverlay.style.position = "absolute";
+      gradientOverlay.style.top = mT + "px";
+      gradientOverlay.style.left = mL + "px";
+      gradientOverlay.style.width = size.w + "px";
+      gradientOverlay.style.height = size.h + "px";
+      const o1 = parseFloat(gradO1.value);
+      const reach = parseInt(gradReach.value);
+      const curve = gradCurve.value;
+      if (gradEdge === "vignette") {
+        gradientOverlay.style.background = `radial-gradient(ellipse at center, transparent ${(100 - reach * 0.8).toFixed(0)}%, ${hexToRgba(gradC1.value, o1)} 100%)`;
+      } else {
+        const css = buildGradCss(gradC1.value, o1, reach, curve, gradEdge);
+        gradientOverlay.style.background = css;
+      }
+    } else {
+      gradientOverlay.style.display = "none";
+    }
+
+    // ── Border overlay ──
+    if (bw > 0) {
+      borderOverlay.style.display = "block";
+      borderOverlay.style.position = "absolute";
+      borderOverlay.style.top = mT + "px";
+      borderOverlay.style.left = mL + "px";
+      borderOverlay.style.width = size.w + "px";
+      borderOverlay.style.height = size.h + "px";
+      borderOverlay.style.border = `${bw}px solid ${borderColorEl.value}`;
+    } else {
+      borderOverlay.style.display = "none";
+    }
+
+    // ── Marker layer ──
+    updateMarkerLayer(size, mT, mL);
+
+    // ── Text layer ──
+    textLayer.style.width = totalW + "px";
+    textLayer.style.height = totalH + "px";
+
+    // Coords auto-fill
+    if (showCoords.checked && lastCenter && !coordsInput.value) {
+      const lat = lastCenter.lat, lon = lastCenter.lon;
+      coordsInput.value = `${Math.abs(lat).toFixed(4)}\u00B0${lat>=0?"N":"S"}  ${Math.abs(lon).toFixed(4)}\u00B0${lon>=0?"E":"W"}`;
+    }
+
+    updateTextElement(textTitle, titleInput.value, titleVisible, {
+      size: parseInt(titleSize.value)||36, color: titleColor.value,
+      weight: titleWeight.value, spacing: parseInt(titleSpacing.value)||0,
+      xPct: parseInt(titleX.value), yPct: parseInt(titleY.value),
+      align: titleAlign, uppercase: titleUC.checked, font: titleFont.value
+    }, totalW, totalH);
+
+    updateTextElement(textSubtitle, subtitleInput.value, subtitleVisible, {
+      size: parseInt(subtitleSize.value)||14, color: subtitleColor.value,
+      weight: subtitleWeight.value, spacing: parseInt(subtitleSpacing.value)||0,
+      xPct: parseInt(subtitleX.value), yPct: parseInt(subtitleY.value),
+      align: subtitleAlign, uppercase: subtitleUC.checked, font: subtitleFont.value
+    }, totalW, totalH);
+
+    updateTextElement(textCoords, coordsInput.value, coordsVisible, {
+      size: parseInt(coordsSize.value)||12, color: coordsColor.value,
+      weight: coordsWeight.value, spacing: parseInt(coordsSpacing.value)||0,
+      xPct: parseInt(coordsX.value), yPct: parseInt(coordsY.value),
+      align: coordsAlign, uppercase: coordsUCEl.checked, font: coordsFont.value
+    }, totalW, totalH);
+
+    // ── Panel below map ──
+    if (usePanelBelow) {
+      panelLayer.style.display = "block";
+      panelLayer.style.position = "absolute";
+      panelLayer.style.top = (mT + size.h) + "px";
+      panelLayer.style.left = "0";
+      panelLayer.style.width = totalW + "px";
+      panelLayer.style.height = (mB + pH) + "px";
+      panelLayer.style.background = panelBgColor.value;
+      drawSeparatorCanvas(panelSeparator, totalW, sepStyle, sepColor.value);
+    } else {
+      panelLayer.style.display = "none";
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Update a single text element in the live preview
+  // ══════════════════════════════════════════════════════════════
+  function updateTextElement(el, text, visible, opts, totalW, totalH) {
+    if (!visible || !text) {
+      el.style.display = "none";
+      return;
+    }
+    el.style.display = "block";
+
+    const displayText = opts.uppercase ? text.toUpperCase() : text;
+    el.textContent = displayText;
+
+    el.style.fontSize = opts.size + "px";
+    el.style.color = opts.color;
+    el.style.fontWeight = opts.weight;
+    el.style.letterSpacing = opts.spacing + "px";
+    el.style.fontFamily = opts.font;
+
+    // Position: X/Y as % of total wrapper size
+    const px = (opts.xPct / 100) * totalW;
+    const py = (opts.yPct / 100) * totalH;
+
+    el.style.left = px + "px";
+    el.style.top = py + "px";
+
+    // Alignment affects transform
+    el.className = "text-el align-" + opts.align;
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Marker layer (multi-marker, FA icons)
+  // ══════════════════════════════════════════════════════════════
+  function updateMarkerLayer(size, mT, mL) {
+    markerLayer.innerHTML = "";
+    if (markers.length === 0) {
+      markerLayer.style.display = "none";
+      return;
+    }
+    markerLayer.style.display = "block";
+    markerLayer.style.position = "absolute";
+    markerLayer.style.top = mT + "px";
+    markerLayer.style.left = mL + "px";
+    markerLayer.style.width = size.w + "px";
+    markerLayer.style.height = size.h + "px";
+
+    markers.forEach(m => {
+      const wrap = document.createElement("div");
+      wrap.style.cssText = `position:absolute; left:${m.x}%; top:${m.y}%; transform:translate(-50%,-50%); text-align:center; pointer-events:none;`;
+      wrap.innerHTML = `<i class="fa-solid fa-${m.icon}" style="font-size:24px; color:${m.color};"></i>`;
+      if (m.label) {
+        const lbl = document.createElement("div");
+        lbl.style.cssText = `font-size:10px; color:${m.color}; margin-top:2px; white-space:nowrap;`;
+        lbl.textContent = m.label;
+        wrap.appendChild(lbl);
+      }
+      markerLayer.appendChild(wrap);
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Draw separator on a small canvas (for panel)
+  // ══════════════════════════════════════════════════════════════
+  function drawSeparatorCanvas(canvasEl, width, style, color) {
+    canvasEl.width = width;
+    canvasEl.height = 20;
+    const ctx = canvasEl.getContext("2d");
+    ctx.clearRect(0, 0, width, 20);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 1;
+    const y = 10, x = 20, w = width - 40;
+
+    switch (style) {
+      case "line":
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x+w, y); ctx.stroke();
+        break;
+      case "double":
+        ctx.beginPath(); ctx.moveTo(x, y-2); ctx.lineTo(x+w, y-2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x, y+2); ctx.lineTo(x+w, y+2); ctx.stroke();
+        break;
+      case "dots":
+        for (let i = 0; i <= w; i += 8) {
+          ctx.beginPath(); ctx.arc(x+i, y, 1.5, 0, Math.PI*2); ctx.fill();
+        }
+        break;
+      case "diamond": {
+        const mid = x + w/2;
+        ctx.beginPath();
+        ctx.moveTo(mid-6, y); ctx.lineTo(mid, y-6); ctx.lineTo(mid+6, y); ctx.lineTo(mid, y+6);
+        ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(mid-12, y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(mid+12, y); ctx.lineTo(x+w, y); ctx.stroke();
+        break;
+      }
+      case "none": break;
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Geocode
+  // ══════════════════════════════════════════════════════════════
+  async function geocodeLocation() {
+    const body = {};
+    if (locMode === "search") {
+      const q = searchInput.value.trim();
+      if (!q) throw new Error("Enter a location");
+      body.query = q;
+    } else if (locMode === "zip") {
+      const z = zipInput.value.trim();
+      if (!z) throw new Error("Enter a ZIP code");
+      body.query = z;
+      body.countrycodes = "us";
+    } else {
+      const lat = parseFloat(latInput.value), lon = parseFloat(lonInput.value);
+      if (isNaN(lat) || isNaN(lon)) throw new Error("Enter valid coordinates");
+      body.lat = lat; body.lon = lon;
+    }
+    const res = await fetch("/api/osm", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    return data;
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Generate: fetch map tile → show live preview
+  // ══════════════════════════════════════════════════════════════
+  async function generate() {
+    generateBtn.disabled = true;
+    generateBtn.textContent = "Generating\u2026";
+    spinner.style.display = "";
+    placeholder.style.display = "none";
+    previewWrapper.style.display = "none";
+
+    try {
+      // 1. Geocode
+      const geo = await geocodeLocation();
+      lastCenter = geo.center;
+      lastDisplayName = geo.displayName;
+
+      // 2. Clear auto-filled coords so it re-fills
+      if (showCoords.checked) coordsInput.value = "";
+
+      // 3. Compute zoom & canvas size
+      const zoom = getActualZoom();
+      const size = getCanvasSize();
+
+      // 4. Fetch rendered map PNG from server
+      const resp = await fetch("/api/render", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lat: lastCenter.lat, lon: lastCenter.lon,
+          zoom, width: size.w, height: size.h, style: getEffectiveStyle(), ...getProcParams()
+        })
+      });
+
+      if (!resp.ok) {
+        let msg = "Map render failed";
+        try { const err = await resp.json(); msg = err.error || msg; } catch(e) {}
+        throw new Error(msg);
+      }
+
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      // 5. Set as img src
+      await new Promise((resolve, reject) => {
+        mapLayer.onload = resolve;
+        mapLayer.onerror = () => reject(new Error("Failed to load map image"));
+        mapLayer.src = blobUrl;
+      });
+
+      mapLoaded = true;
+      previewWrapper.style.display = "block";
+      downloadBtn.disabled = false;
+      $("removeLabelsBtn").style.display = "";
+
+      // 6. Update live preview + save settings
+      updatePreview();
+      saveToLocalStorage();
+
+    } catch (err) {
+      alert("Error: " + err.message);
+      placeholder.style.display = "";
+    } finally {
+      spinner.style.display = "none";
+      generateBtn.disabled = false;
+      generateBtn.textContent = "Generate";
+    }
+  }
+
+  generateBtn.onclick = generate;
+
+  // ── Remove Labels (AI via Studio) ──
+  $("removeLabelsBtn").onclick = async function() {
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = "Removing labels…";
+    spinner.style.display = "";
+    try {
+      // Get current map image as PNG blob
+      const res = await fetch(mapLayer.src);
+      const blob = await res.blob();
+      const arrayBuf = await blob.arrayBuffer();
+
+      // Send to /api/post-process
+      const resp = await fetch("/api/post-process?op=remove_labels", {
+        method: "POST",
+        headers: { "Content-Type": "image/png" },
+        body: arrayBuf
+      });
+      if (!resp.ok) {
+        const err = await resp.json();
+        throw new Error(err.error || "Label removal failed");
+      }
+      const cleanBlob = await resp.blob();
+      const cleanUrl = URL.createObjectURL(cleanBlob);
+      mapLayer.src = cleanUrl;
+      await new Promise(r => { mapLayer.onload = r; });
+      updatePreview();
+      btn.textContent = "✓ Labels Removed";
+      setTimeout(() => { btn.textContent = "✦ Remove Labels"; btn.disabled = false; }, 3000);
+    } catch(e) {
+      alert("Label removal failed: " + e.message);
+      btn.disabled = false;
+      btn.textContent = "✦ Remove Labels";
+    } finally {
+      spinner.style.display = "none";
+    }
+  };
+  [searchInput, zipInput, latInput, lonInput].forEach(input => {
+    input.addEventListener("keydown", e => { if (e.key === "Enter") generate(); });
+  });
+
+  // Re-fit on window resize
+  window.addEventListener("resize", () => { if (mapLoaded) updatePreview(); });
+
+  // ══════════════════════════════════════════════════════════════
+  // Download PNG — manual canvas compositing (reliable)
+  // ══════════════════════════════════════════════════════════════
+  downloadBtn.onclick = async function() {
+    if (!mapLoaded) return;
+
+    const size = getCanvasSize();
+    const mT = parseInt(matTop.value)||0, mR = parseInt(matRight.value)||0;
+    const mB = parseInt(matBottom.value)||0, mL = parseInt(matLeft.value)||0;
+    const bw = parseInt(borderWidthEl.value)||0;
+    const usePanelBelow = panelEnable.checked;
+    const pH = usePanelBelow ? (parseInt(panelHeight.value)||120) : 0;
+
+    const mapW = size.w, mapH = size.h;
+    const totalW = mapW + mL + mR;
+    const totalH = mapH + mT + mB + pH;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = totalW;
+    canvas.height = totalH;
+    const ctx = canvas.getContext("2d");
+
+    // ── Mat background ──
+    ctx.fillStyle = matColor.value;
+    ctx.fillRect(0, 0, totalW, totalH);
+
+    // ── Mat style decorations ──
+    if (matStyleVal === "double" && Math.min(mT,mR,mB,mL) > 8) {
+      ctx.strokeStyle = borderColorEl.value;
+      ctx.lineWidth = 1;
+      const inset = 0.3;
+      ctx.strokeRect(mL*inset, mT*inset, totalW - mL*inset*2, totalH - mT*inset*2);
+    } else if (matStyleVal === "shadow") {
+      ctx.shadowColor = "rgba(0,0,0,0.3)";
+      ctx.shadowBlur = 15;
+      ctx.shadowOffsetX = 5;
+      ctx.shadowOffsetY = 5;
+      ctx.fillStyle = matColor.value;
+      ctx.fillRect(mL, mT, mapW, mapH);
+      ctx.shadowColor = "transparent";
+    } else if (matStyleVal === "inset" && Math.min(mT,mR,mB,mL) > 6) {
+      ctx.strokeStyle = "rgba(0,0,0,0.15)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(mL-4, mT-4, mapW+8, mapH+8);
+    }
+
+    // ── Map ──
+    ctx.drawImage(mapLayer, mL, mT, mapW, mapH);
+
+    // ── Gradient overlay ──
+    if (gradEnable.checked) {
+      const o1 = parseFloat(gradO1.value);
+      const reachFrac = parseInt(gradReach.value) / 100;
+      const curve = gradCurve.value;
+      const steps = 16;
+
+      if (gradEdge === "vignette") {
+        // Radial vignette on canvas
+        const cx = mL + mapW / 2, cy = mT + mapH / 2;
+        const rx = mapW / 2, ry = mapH / 2;
+        const inner = Math.min(rx, ry) * (1 - reachFrac * 0.8);
+        const outer = Math.max(rx, ry);
+        const grad = ctx.createRadialGradient(cx, cy, inner, cx, cy, outer);
+        grad.addColorStop(0, hexToRgba(gradC1.value, 0));
+        grad.addColorStop(1, hexToRgba(gradC1.value, o1));
+        ctx.fillStyle = grad;
+        ctx.fillRect(mL, mT, mapW, mapH);
+      } else {
+        const edgeCoords = {
+          bottom: [mL, mT + mapH, mL, mT],
+          top:    [mL, mT, mL, mT + mapH],
+          left:   [mL, mT, mL + mapW, mT],
+          right:  [mL + mapW, mT, mL, mT]
+        };
+        const coords = edgeCoords[gradEdge] || edgeCoords.bottom;
+        const grad = ctx.createLinearGradient(...coords);
+        for (let i = 0; i <= steps; i++) {
+          const tNorm = i / steps;
+          const pos = tNorm * reachFrac;
+          grad.addColorStop(pos, hexToRgba(gradC1.value, gradAlpha(tNorm, o1, curve)));
+        }
+        grad.addColorStop(reachFrac, hexToRgba(gradC1.value, 0));
+        if (reachFrac < 1) grad.addColorStop(1, hexToRgba(gradC1.value, 0));
+        ctx.fillStyle = grad;
+        ctx.fillRect(mL, mT, mapW, mapH);
+      }
+    }
+
+    // ── Border ──
+    if (bw > 0) {
+      ctx.strokeStyle = borderColorEl.value;
+      ctx.lineWidth = bw;
+      ctx.strokeRect(mL + bw/2, mT + bw/2, mapW - bw, mapH - bw);
+    }
+
+    // ── Panel below map ──
+    if (usePanelBelow) {
+      ctx.fillStyle = panelBgColor.value;
+      ctx.fillRect(0, mT + mapH, totalW, mB + pH);
+      drawSeparatorOnCtx(ctx, 20, mT + mapH + 10, totalW - 40, sepStyle, sepColor.value);
+    }
+
+    // ── Text elements ──
+    drawTextOnCanvas(ctx, titleInput.value, titleVisible, {
+      size: parseInt(titleSize.value)||36, color: titleColor.value,
+      weight: titleWeight.value, spacing: parseInt(titleSpacing.value)||0,
+      xPct: parseInt(titleX.value), yPct: parseInt(titleY.value),
+      align: titleAlign, uppercase: titleUC.checked, font: titleFont.value
+    }, totalW, totalH);
+
+    drawTextOnCanvas(ctx, subtitleInput.value, subtitleVisible, {
+      size: parseInt(subtitleSize.value)||14, color: subtitleColor.value,
+      weight: subtitleWeight.value, spacing: parseInt(subtitleSpacing.value)||0,
+      xPct: parseInt(subtitleX.value), yPct: parseInt(subtitleY.value),
+      align: subtitleAlign, uppercase: subtitleUC.checked, font: subtitleFont.value
+    }, totalW, totalH);
+
+    drawTextOnCanvas(ctx, coordsInput.value, coordsVisible, {
+      size: parseInt(coordsSize.value)||12, color: coordsColor.value,
+      weight: coordsWeight.value, spacing: parseInt(coordsSpacing.value)||0,
+      xPct: parseInt(coordsX.value), yPct: parseInt(coordsY.value),
+      align: coordsAlign, uppercase: coordsUCEl.checked, font: coordsFont.value
+    }, totalW, totalH);
+
+    // ── Markers ──
+    markers.forEach(m => {
+      ctx.save();
+      ctx.font = '900 32px "Font Awesome 6 Free"';
+      ctx.fillStyle = m.color;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const mx = mL + (m.x / 100) * mapW;
+      const my = mT + (m.y / 100) * mapH;
+      const icon = FA_ICONS.find(i => i.name === m.icon);
+      ctx.fillText(icon ? icon.unicode : "", mx, my);
+      if (m.label) {
+        ctx.font = "600 14px Arial, sans-serif";
+        ctx.fillText(m.label, mx, my + 22);
+      }
+      ctx.restore();
+    });
+
+    // ── Export ──
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const name = titleInput.value.trim().replace(/\s+/g, "_") || "mapframe";
+      a.download = name + ".png";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  };
+
+  // ══════════════════════════════════════════════════════════════
+  // Canvas text drawing (for download)
+  // ══════════════════════════════════════════════════════════════
+  function drawTextOnCanvas(ctx, text, visible, opts, totalW, totalH) {
+    if (!visible || !text) return;
+
+    const displayText = opts.uppercase ? text.toUpperCase() : text;
+    const px = (opts.xPct / 100) * totalW;
+    const py = (opts.yPct / 100) * totalH;
+
+    ctx.save();
+    ctx.font = `${opts.weight} ${opts.size}px ${opts.font}`;
+    ctx.fillStyle = opts.color;
+    ctx.letterSpacing = opts.spacing + "px";
+    ctx.textBaseline = "top";
+    ctx.textAlign = opts.align;
+    ctx.fillText(displayText, px, py);
+    ctx.restore();
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Canvas separator drawing (for download)
+  // ══════════════════════════════════════════════════════════════
+  function drawSeparatorOnCtx(ctx, x, y, w, style, color) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 1;
+    switch (style) {
+      case "line":
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x+w, y); ctx.stroke();
+        break;
+      case "double":
+        ctx.beginPath(); ctx.moveTo(x, y-2); ctx.lineTo(x+w, y-2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x, y+2); ctx.lineTo(x+w, y+2); ctx.stroke();
+        break;
+      case "dots":
+        for (let i = 0; i <= w; i += 8) {
+          ctx.beginPath(); ctx.arc(x+i, y, 1.5, 0, Math.PI*2); ctx.fill();
+        }
+        break;
+      case "diamond": {
+        const mid = x + w/2;
+        ctx.beginPath();
+        ctx.moveTo(mid-6, y); ctx.lineTo(mid, y-6); ctx.lineTo(mid+6, y); ctx.lineTo(mid, y+6);
+        ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(mid-12, y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(mid+12, y); ctx.lineTo(x+w, y); ctx.stroke();
+        break;
+      }
+      case "none": break;
+    }
+    ctx.restore();
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // URL params: buildShareURL / loadFromURL
+  // ══════════════════════════════════════════════════════════════
+  function buildShareURL() {
+    const p = new URLSearchParams();
+
+    // Location
+    p.set("lmode", locMode);
+    if (locMode === "search") p.set("q", searchInput.value);
+    else if (locMode === "zip") p.set("zip", zipInput.value);
+    else { p.set("lat", latInput.value); p.set("lon", lonInput.value); }
+    p.set("r", radiusSelect.value);
+
+    // Style & canvas
+    p.set("style", currentStyle);
+    if (document.getElementById("noLabelsCheck").checked) p.set("nolabels", "1");
+    p.set("aspect", aspect);
+    if (aspect === "custom") { p.set("cw", customW.value); p.set("ch", customH.value); }
+    p.set("zoom", zoomSlider.value);
+
+    // Mat (4-side)
+    p.set("mt", matTop.value);
+    p.set("mr", matRight.value);
+    p.set("mb", matBottom.value);
+    p.set("ml", matLeft.value);
+    p.set("mc", matColor.value);
+    p.set("mst", matStyleVal);
+    p.set("mlink", matLink.checked ? "1" : "0");
+
+    // Border
+    p.set("bw", borderWidthEl.value);
+    p.set("bc", borderColorEl.value);
+
+    // Gradient
+    p.set("grad", gradEnable.checked ? "1" : "0");
+    p.set("gradDir", gradDir.value);
+    p.set("gradC1", gradC1.value); p.set("gradO1", gradO1.value);
+    p.set("gradC2", gradC2.value); p.set("gradO2", gradO2.value);
+    p.set("gradReach", gradReach.value); p.set("gradCurve", gradCurve.value); p.set("gradEdge", gradEdge);
+    p.set("pcon", procContrast.value); p.set("pbri", procBright.value); p.set("psat", procSat.value);
+    if (procGray.checked) p.set("pgray", "1");
+    if (procInvert.checked) p.set("pinv", "1");
+
+    // Font
+    p.set("tfont", titleFont.value); p.set("sfont", subtitleFont.value); p.set("cfont", coordsFont.value);
+
+    // Title
+    p.set("title", titleInput.value);
+    p.set("tsz", titleSize.value);
+    p.set("tc", titleColor.value);
+    p.set("tw", titleWeight.value);
+    p.set("tsp", titleSpacing.value);
+    p.set("t1x", titleX.value);
+    p.set("t1y", titleY.value);
+    p.set("t1a", titleAlign);
+    p.set("t1uc", titleUC.checked ? "1" : "0");
+    p.set("t1v", titleVisible ? "1" : "0");
+
+    // Subtitle
+    p.set("sub", subtitleInput.value);
+    p.set("ssz", subtitleSize.value);
+    p.set("scl", subtitleColor.value);
+    p.set("sw", subtitleWeight.value);
+    p.set("ssp", subtitleSpacing.value);
+    p.set("t2x", subtitleX.value);
+    p.set("t2y", subtitleY.value);
+    p.set("t2a", subtitleAlign);
+    p.set("t2uc", subtitleUC.checked ? "1" : "0");
+    p.set("t2v", subtitleVisible ? "1" : "0");
+
+    // Coords
+    p.set("coordsTxt", coordsInput.value);
+    p.set("csz", coordsSize.value);
+    p.set("ccl", coordsColor.value);
+    p.set("cw2", coordsWeight.value);
+    p.set("csp", coordsSpacing.value);
+    p.set("t3x", coordsX.value);
+    p.set("t3y", coordsY.value);
+    p.set("t3a", coordsAlign);
+    p.set("t3uc", coordsUCEl.checked ? "1" : "0");
+    p.set("t3v", coordsVisible ? "1" : "0");
+    p.set("showCoords", showCoords.checked ? "1" : "0");
+
+    // Panel
+    p.set("panel", panelEnable.checked ? "1" : "0");
+    p.set("panelH", panelHeight.value);
+    p.set("panelBg", panelBgColor.value);
+    p.set("sep", sepStyle);
+    p.set("sepC", sepColor.value);
+
+    // Markers
+    if (markers.length) p.set("markers", JSON.stringify(markers.map(m => ({i:m.icon,l:m.label,c:m.color,x:m.x,y:m.y}))));
+
+    return window.location.origin + window.location.pathname + "?" + p.toString();
+  }
+
+  function loadFromURL() {
+    const p = new URLSearchParams(window.location.search);
+    if (!p.has("lmode") && !p.has("q") && !p.has("lat")) return false;
+
+    // Location
+    locMode = p.get("lmode") || "search";
+    document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.lmode === locMode));
+    document.querySelectorAll(".loc-panel").forEach(pl => pl.style.display = "none");
+    $("loc-" + locMode).style.display = "";
+    if (p.has("q")) searchInput.value = p.get("q");
+    if (p.has("zip")) zipInput.value = p.get("zip");
+    if (p.has("lat")) latInput.value = p.get("lat");
+    if (p.has("lon")) lonInput.value = p.get("lon");
+    if (p.has("r")) radiusSelect.value = p.get("r");
+
+    // Style
+    if (p.has("style") && STYLES[p.get("style")]) {
+      currentStyle = p.get("style");
+      styleGrid.querySelectorAll(".style-btn").forEach(b => b.classList.toggle("active", b.dataset.style === currentStyle));
+    }
+    if (p.has("nolabels")) document.getElementById("noLabelsCheck").checked = p.get("nolabels") === "1";
+
+    // Aspect
+    if (p.has("aspect")) {
+      aspect = p.get("aspect");
+      document.querySelectorAll(".aspect-btn").forEach(b => b.classList.toggle("active", b.dataset.aspect === aspect));
+      $("customSize").style.display = aspect === "custom" ? "" : "none";
+    }
+    if (p.has("cw")) customW.value = p.get("cw");
+    if (p.has("ch")) customH.value = p.get("ch");
+    if (p.has("zoom")) zoomSlider.value = p.get("zoom");
+
+    // Mat (4-side)
+    if (p.has("mt")) matTop.value = p.get("mt");
+    if (p.has("mr")) matRight.value = p.get("mr");
+    if (p.has("mb")) matBottom.value = p.get("mb");
+    if (p.has("ml")) matLeft.value = p.get("ml");
+    if (p.has("mc")) matColor.value = p.get("mc");
+    if (p.has("mst")) {
+      matStyleVal = p.get("mst");
+      document.querySelectorAll(".mat-style-btn").forEach(b => b.classList.toggle("active", b.dataset.matstyle === matStyleVal));
+    }
+    if (p.has("mlink")) matLink.checked = p.get("mlink") === "1";
+
+    // Border
+    if (p.has("bw")) borderWidthEl.value = p.get("bw");
+    if (p.has("bc")) borderColorEl.value = p.get("bc");
+
+    // Gradient
+    if (p.has("grad") && p.get("grad") === "1") {
+      gradEnable.checked = true;
+      gradOpts.style.display = "";
+    }
+    if (p.has("gradDir")) gradDir.value = p.get("gradDir");
+    if (p.has("gradC1")) gradC1.value = p.get("gradC1");
+    if (p.has("gradO1")) { gradO1.value = p.get("gradO1"); $("gradO1Val").textContent = parseFloat(p.get("gradO1")).toFixed(2); }
+    if (p.has("gradC2")) gradC2.value = p.get("gradC2");
+    if (p.has("gradO2")) { gradO2.value = p.get("gradO2"); $("gradO2Val").textContent = parseFloat(p.get("gradO2")).toFixed(2); }
+    if (p.has("gradReach")) { gradReach.value = p.get("gradReach"); $("gradReachVal").textContent = p.get("gradReach") + "%"; }
+    if (p.has("gradCurve")) gradCurve.value = p.get("gradCurve");
+    if (p.has("gradEdge")) {
+      gradEdge = p.get("gradEdge");
+      document.querySelectorAll(".grad-edge-btn").forEach(b => {
+        const active = b.dataset.edge === gradEdge;
+        b.style.background = active ? "var(--surface3)" : "var(--input-bg)";
+        b.style.borderColor = active ? "var(--surface4)" : "var(--input-border)";
+        b.style.color = active ? "var(--text)" : "var(--text2)";
+      });
+    }
+
+    // Process params
+    if (p.has("pcon")) { procContrast.value = p.get("pcon"); $("procContrastVal").textContent = parseFloat(p.get("pcon")).toFixed(1) + "×"; }
+    if (p.has("pbri")) { procBright.value = p.get("pbri"); $("procBrightVal").textContent = parseFloat(p.get("pbri")).toFixed(1) + "×"; }
+    if (p.has("psat")) { procSat.value = p.get("psat"); $("procSatVal").textContent = parseFloat(p.get("psat")).toFixed(1) + "×"; }
+    if (p.has("pgray")) procGray.checked = p.get("pgray") === "1";
+    if (p.has("pinv"))  procInvert.checked = p.get("pinv") === "1";
+
+    // Font
+    function setFontPicker(id, val) {
+      _fontValues[id] = val;
+      const btn = document.querySelector(`[data-picker="${id}"]`);
+      const f = FONTS.find(f => f.value === val) || FONTS.find(f => val && val.includes(f.label)) || FONTS[0];
+      if (btn) { btn.querySelector(".fp-label").textContent = f.label; btn.querySelector(".fp-label").style.fontFamily = f.value; }
+      const dropdown = document.getElementById(`${id}Dropdown`);
+      if (dropdown) dropdown.querySelectorAll(".font-picker-option").forEach(o => o.classList.toggle("selected", o.dataset.value === val));
+    }
+    if (p.has("tfont")) setFontPicker("titleFont", p.get("tfont"));
+    if (p.has("sfont")) setFontPicker("subtitleFont", p.get("sfont"));
+    if (p.has("cfont")) setFontPicker("coordsFont", p.get("cfont"));
+
+    // Title
+    if (p.has("title")) titleInput.value = p.get("title");
+    if (p.has("tsz")) titleSize.value = p.get("tsz");
+    if (p.has("tc")) titleColor.value = p.get("tc");
+    if (p.has("tw")) titleWeight.value = p.get("tw");
+    if (p.has("tsp")) titleSpacing.value = p.get("tsp");
+    if (p.has("t1x")) { titleX.value = p.get("t1x"); $("titleXVal").textContent = p.get("t1x") + "%"; }
+    if (p.has("t1y")) { titleY.value = p.get("t1y"); $("titleYVal").textContent = p.get("t1y") + "%"; }
+    if (p.has("t1a")) {
+      titleAlign = p.get("t1a");
+      document.querySelectorAll('.align-btn[data-for="title"]').forEach(b => b.classList.toggle("active", b.dataset.align === titleAlign));
+    }
+    if (p.has("t1uc")) titleUC.checked = p.get("t1uc") === "1";
+    if (p.has("t1v") && p.get("t1v") === "0") {
+      titleVisible = false;
+      $("titleVisBtn").textContent = "Show";
+    }
+
+    // Subtitle
+    if (p.has("sub")) subtitleInput.value = p.get("sub");
+    if (p.has("ssz")) subtitleSize.value = p.get("ssz");
+    if (p.has("scl")) subtitleColor.value = p.get("scl");
+    if (p.has("sw")) subtitleWeight.value = p.get("sw");
+    if (p.has("ssp")) subtitleSpacing.value = p.get("ssp");
+    if (p.has("t2x")) { subtitleX.value = p.get("t2x"); $("subtitleXVal").textContent = p.get("t2x") + "%"; }
+    if (p.has("t2y")) { subtitleY.value = p.get("t2y"); $("subtitleYVal").textContent = p.get("t2y") + "%"; }
+    if (p.has("t2a")) {
+      subtitleAlign = p.get("t2a");
+      document.querySelectorAll('.align-btn[data-for="subtitle"]').forEach(b => b.classList.toggle("active", b.dataset.align === subtitleAlign));
+    }
+    if (p.has("t2uc")) subtitleUC.checked = p.get("t2uc") === "1";
+    if (p.has("t2v") && p.get("t2v") === "0") {
+      subtitleVisible = false;
+      $("subtitleVisBtn").textContent = "Show";
+    }
+
+    // Coords
+    if (p.has("coordsTxt")) coordsInput.value = p.get("coordsTxt");
+    if (p.has("csz")) coordsSize.value = p.get("csz");
+    if (p.has("ccl")) coordsColor.value = p.get("ccl");
+    if (p.has("cw2")) coordsWeight.value = p.get("cw2");
+    if (p.has("csp")) coordsSpacing.value = p.get("csp");
+    if (p.has("t3x")) { coordsX.value = p.get("t3x"); $("coordsXVal").textContent = p.get("t3x") + "%"; }
+    if (p.has("t3y")) { coordsY.value = p.get("t3y"); $("coordsYVal").textContent = p.get("t3y") + "%"; }
+    if (p.has("t3a")) {
+      coordsAlign = p.get("t3a");
+      document.querySelectorAll('.align-btn[data-for="coords"]').forEach(b => b.classList.toggle("active", b.dataset.align === coordsAlign));
+    }
+    if (p.has("t3uc")) coordsUCEl.checked = p.get("t3uc") === "1";
+    if (p.has("t3v") && p.get("t3v") === "0") {
+      coordsVisible = false;
+      $("coordsVisBtn").textContent = "Show";
+    }
+    if (p.has("showCoords")) showCoords.checked = p.get("showCoords") === "1";
+
+    // Panel
+    if (p.has("panel") && p.get("panel") === "1") {
+      panelEnable.checked = true;
+      panelOpts.style.display = "";
+    }
+    if (p.has("panelH")) panelHeight.value = p.get("panelH");
+    if (p.has("panelBg")) panelBgColor.value = p.get("panelBg");
+    if (p.has("sep")) {
+      sepStyle = p.get("sep");
+      document.querySelectorAll(".sep-btn").forEach(b => b.classList.toggle("active", b.dataset.sep === sepStyle));
+    }
+    if (p.has("sepC")) sepColor.value = p.get("sepC");
+
+    // Markers
+    if (p.has("markers")) {
+      try {
+        const arr = JSON.parse(p.get("markers"));
+        markers = [];
+        arr.forEach(m => {
+          const icon = FA_ICONS.find(i => i.name === m.i);
+          if (!icon) return;
+          markers.push({ id: Date.now() + Math.random(), icon: icon.name, unicode: icon.unicode, label: String(m.l || "").slice(0, 50), color: /^#[0-9a-fA-F]{6}$/.test(m.c) ? m.c : "#ffffff", x: Math.max(0, Math.min(100, Number(m.x) || 50)), y: Math.max(0, Math.min(100, Number(m.y) || 50)) });
+        });
+        markerListEl.innerHTML = "";
+        markers.forEach(m => markerListEl.appendChild(createMarkerCard(m)));
+      } catch(e) {}
+    }
+
+    updateZoomDisplay();
+    return p.has("q") || p.has("zip") || p.has("lat");
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Copy Link
+  // ══════════════════════════════════════════════════════════════
+  copyLinkBtn.onclick = () => {
+    const url = buildShareURL();
+    const fallback = () => {
+      // Fallback: select from temp input
+      const inp = document.createElement("input");
+      inp.value = url; document.body.appendChild(inp);
+      inp.select(); document.execCommand("copy");
+      document.body.removeChild(inp);
+      copyLinkBtn.textContent = "Copied!";
+      setTimeout(() => { copyLinkBtn.innerHTML = "&#128279; Copy Link"; }, 2000);
+    };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        copyLinkBtn.textContent = "Copied!";
+        setTimeout(() => { copyLinkBtn.innerHTML = "&#128279; Copy Link"; }, 2000);
+      }).catch(fallback);
+    } else {
+      fallback();
+    }
+    // Also show the URL in case clipboard fails
+    console.log("Share URL:", url);
+  };
+
+  // ══════════════════════════════════════════════════════════════
+  // localStorage persistence
+  // ══════════════════════════════════════════════════════════════
+  const LS_KEY = "mapframe_settings_v1";
+
+  function saveToLocalStorage() {
+    try {
+      localStorage.setItem(LS_KEY, buildShareURL().split("?")[1] || "");
+    } catch(e) {}
+  }
+
+  function loadFromLocalStorage() {
+    try {
+      const saved = localStorage.getItem(LS_KEY);
+      if (!saved) return false;
+      // Temporarily swap search string to load saved settings
+      const orig = window.location.search;
+      window.history.replaceState(null, "", "?" + saved);
+      const result = loadFromURL();
+      // Restore original URL (or blank if nothing was there)
+      window.history.replaceState(null, "", orig || window.location.pathname);
+      return result;
+    } catch(e) { return false; }
+  }
+
+  // Reset button
+  $("resetBtn").onclick = () => {
+    if (!confirm("Reset all settings to defaults?")) return;
+    try { localStorage.removeItem(LS_KEY); } catch(e) {}
+    window.location.href = window.location.pathname;
+  };
+
+  // ══════════════════════════════════════════════════════════════
+  // Load from URL on startup (URL params take priority over localStorage)
+  // ══════════════════════════════════════════════════════════════
+  let shouldAutoGen = false;
+  if (window.location.search) {
+    shouldAutoGen = loadFromURL();
+  } else {
+    shouldAutoGen = loadFromLocalStorage();
+  }
+  if (shouldAutoGen) {
+    setTimeout(generate, 300);
+  }
+})();
+</script>
 </body>
 </html>

@@ -1,1 +1,8 @@
 node_modules/
+.env
+*.log
+samsung_token.txt
+secrets/
+.secrets/
+.env
+node_modules/
