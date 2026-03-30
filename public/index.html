@@ -30,6 +30,8 @@
 <meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bebas+Neue&family=Cinzel&family=Cormorant+Garamond:wght@300;400;600&family=DM+Serif+Display&family=Josefin+Sans:wght@300;400;600&family=Lato:wght@300;400;700&family=Libre+Baskerville:wght@400;700&family=Merriweather:wght@300;400;700&family=Montserrat:wght@300;400;600;700&family=Open+Sans:wght@300;400;600&family=Oswald:wght@300;400;600&family=Playfair+Display:wght@400;600;700&family=Raleway:wght@300;400;600&family=Roboto:wght@300;400;700&family=Roboto+Condensed:wght@300;400;700&family=Roboto+Mono&family=Spectral:wght@300;400;600&family=Work+Sans:wght@300;400;600&display=swap">
@@ -301,6 +303,15 @@ button {
 .font-picker-option:hover { background: var(--surface2); color: var(--text); }
 .font-picker-option.selected { color: var(--text); background: var(--surface3); }
 
+/* Hidden MapLibre container for offscreen rendering */
+#maplibre-container {
+  position: fixed;
+  top: 0; left: -99999px;
+  pointer-events: none;
+  overflow: hidden;
+}
+#maplibre-container .maplibregl-control-container { display: none !important; }
+
 /* Mobile */
 @media (max-width: 700px) {
   body { flex-direction: column; }
@@ -412,6 +423,19 @@ button {
         <div class="mat-style-btn" data-matstyle="inset">Inset</div>
       </div>
     </div>
+    <div id="shadowControls" style="display:none;">
+      <div class="row">
+        <label>Color</label><input type="color" id="shadowColor" value="#000000">
+        <label style="margin-left:6px">Opacity</label><input type="range" id="shadowOpacity" min="0" max="1" step="0.05" value="0.3" style="flex:1"><span id="shadowOpacityVal" style="font-size:11px;min-width:24px;">0.30</span>
+      </div>
+      <div class="row">
+        <label>Blur</label><input type="range" id="shadowBlurEl" min="0" max="60" step="1" value="15" style="flex:1"><span id="shadowBlurVal" style="font-size:11px;min-width:24px;">15</span>
+      </div>
+      <div class="row">
+        <label>X</label><input type="range" id="shadowOffX" min="-40" max="40" step="1" value="5" style="flex:1"><span id="shadowOffXVal" style="font-size:11px;min-width:24px;">5</span>
+        <label style="margin-left:6px">Y</label><input type="range" id="shadowOffY" min="-40" max="40" step="1" value="5" style="flex:1"><span id="shadowOffYVal" style="font-size:11px;min-width:24px;">5</span>
+      </div>
+    </div>
   </div>
 
   <!-- Border -->
@@ -480,9 +504,11 @@ button {
       <div id="titleControls">
         <div class="row"><input type="text" id="titleInput" placeholder="CITY NAME"></div>
         <div class="row">
-          <label>Size</label><input type="number" id="titleSize" value="36" min="8" max="120">
+          <label>Size</label><input type="number" id="titleSize" value="36" min="8" max="120" style="width:56px">
           <label>Color</label><input type="color" id="titleColor" value="#333333">
-          <label style="margin-left:6px">Opacity</label><input type="range" id="titleOpacity" min="0" max="1" step="0.05" value="1" style="width:60px"><span id="titleOpacityVal" style="font-size:11px;min-width:24px;">1.0</span>
+        </div>
+        <div class="row">
+          <label>Opacity</label><input type="range" id="titleOpacity" min="0" max="1" step="0.05" value="1" style="flex:1"><span id="titleOpacityVal" style="font-size:11px;min-width:24px;">1.0</span>
         </div>
         <div class="row" style="align-items:center;gap:6px;flex-wrap:wrap;">
           <label class="check-row" style="margin:0;gap:4px;"><input type="checkbox" id="titleGlowEnable"> <span style="font-size:11px;">Glow</span></label>
@@ -535,9 +561,11 @@ button {
       <div id="subtitleControls">
         <div class="row"><input type="text" id="subtitleInput" placeholder="Country · Coordinates"></div>
         <div class="row">
-          <label>Size</label><input type="number" id="subtitleSize" value="14" min="6" max="60">
+          <label>Size</label><input type="number" id="subtitleSize" value="14" min="6" max="60" style="width:56px">
           <label>Color</label><input type="color" id="subtitleColor" value="#888888">
-          <label style="margin-left:6px">Opacity</label><input type="range" id="subtitleOpacity" min="0" max="1" step="0.05" value="1" style="width:60px"><span id="subtitleOpacityVal" style="font-size:11px;min-width:24px;">1.0</span>
+        </div>
+        <div class="row">
+          <label>Opacity</label><input type="range" id="subtitleOpacity" min="0" max="1" step="0.05" value="1" style="flex:1"><span id="subtitleOpacityVal" style="font-size:11px;min-width:24px;">1.0</span>
         </div>
         <div class="row" style="align-items:center;gap:6px;flex-wrap:wrap;">
           <label class="check-row" style="margin:0;gap:4px;"><input type="checkbox" id="subtitleGlowEnable"> <span style="font-size:11px;">Glow</span></label>
@@ -593,9 +621,11 @@ button {
           <input type="checkbox" id="showCoords"><label for="showCoords">Auto-fill coordinates</label>
         </div>
         <div class="row">
-          <label>Size</label><input type="number" id="coordsSize" value="12" min="6" max="60">
+          <label>Size</label><input type="number" id="coordsSize" value="12" min="6" max="60" style="width:56px">
           <label>Color</label><input type="color" id="coordsColor" value="#888888">
-          <label style="margin-left:6px">Opacity</label><input type="range" id="coordsOpacity" min="0" max="1" step="0.05" value="1" style="width:60px"><span id="coordsOpacityVal" style="font-size:11px;min-width:24px;">1.0</span>
+        </div>
+        <div class="row">
+          <label>Opacity</label><input type="range" id="coordsOpacity" min="0" max="1" step="0.05" value="1" style="flex:1"><span id="coordsOpacityVal" style="font-size:11px;min-width:24px;">1.0</span>
         </div>
         <div class="row" style="align-items:center;gap:6px;flex-wrap:wrap;">
           <label class="check-row" style="margin:0;gap:4px;"><input type="checkbox" id="coordsGlowEnable"> <span style="font-size:11px;">Glow</span></label>
@@ -696,12 +726,17 @@ button {
       <input type="range" id="procSat" min="0" max="3" step="0.1" value="1" style="flex:1">
       <span id="procSatVal" style="font-size:11px;min-width:32px;">1.0×</span>
     </div>
+    <div class="row">
+      <label>Hue</label><input type="range" id="procHue" min="0" max="360" step="1" value="0" style="flex:1"><span id="procHueVal" style="font-size:11px;min-width:28px;">0°</span>
+    </div>
+    <div class="row">
+      <label>Tint</label><input type="color" id="procTintColor" value="#ffffff" style="width:36px;height:28px;padding:2px;">
+      <input type="range" id="procTintAmt" min="0" max="1" step="0.05" value="0" style="flex:1;margin-left:6px;"><span id="procTintAmtVal" style="font-size:11px;min-width:24px;">0%</span>
+    </div>
     <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
-      <label class="check-row" style="margin:0;flex:1"><input type="checkbox" id="procNorm"> <span>Normalize</span></label>
       <label class="check-row" style="margin:0;flex:1"><input type="checkbox" id="procGray"> <span>Grayscale</span></label>
       <label class="check-row" style="margin:0;flex:1"><input type="checkbox" id="procInvert"> <span>Invert</span></label>
     </div>
-    <button class="btn-secondary" id="procApplyBtn" style="width:100%;margin-top:8px;">Apply &amp; Regenerate</button>
     </div><!-- end procBody -->
   </div>
 
@@ -729,7 +764,8 @@ button {
         ▾ Low<br><span style="font-size:9px;opacity:0.6;">1200px · web</span>
       </button>
     </div>
-    <div id="download-bar" style="display:flex;gap:5px;">
+    <div id="download-bar" style="display:flex;gap:5px;flex-wrap:wrap;">
+      <button class="btn-secondary" id="svgBtn" disabled style="opacity:0.5;">&#9632; SVG</button>
       <button class="btn-secondary" id="copyLinkBtn">&#128279; Copy Link</button>
       <button class="btn-secondary" id="resetBtn" style="opacity:0.6">&#8635; Reset</button>
     </div>
@@ -751,8 +787,8 @@ button {
     <!-- Mat style decoration (double line, shadow, inset) -->
     <div id="mat-decoration" style="position:absolute; z-index:0; pointer-events:none;"></div>
 
-    <!-- Map image -->
-    <img id="map-layer" alt="Map" crossorigin="anonymous">
+    <!-- Map canvas (rendered from MapLibre) -->
+    <canvas id="map-layer"></canvas>
 
     <!-- Gradient overlay (over the map) -->
     <div id="gradient-overlay"></div>
@@ -787,6 +823,8 @@ button {
   </div>
 </div>
 
+<div id="maplibre-container"></div>
+
 <script>
 (function() {
   "use strict";
@@ -804,6 +842,8 @@ button {
   let lastCenter = null;
   let lastDisplayName = "";
   let mapLoaded = false;
+  let mlMap = null;       // MapLibre GL map instance
+  let maptilerKey = null; // fetched from /api/config
 
   // Per-text-element visibility
   let titleVisible = true, subtitleVisible = true, coordsVisible = true;
@@ -812,8 +852,8 @@ button {
 
   const STYLES = {
     // Light
-    positron:     { name:"Positron",   swatch:["#f8f5f0","#aad3df","#c8e6c0","#e8e0d0"], clean:"positron_nolabels" },
-    voyager:      { name:"Voyager",    swatch:["#f5f2ec","#aad3df","#c8e6c0","#f0e8d0"], clean:"voyager_nolabels" },
+    positron:     { name:"Positron",   swatch:["#f8f5f0","#aad3df","#c8e6c0","#e8e0d0"] },
+    voyager:      { name:"Voyager",    swatch:["#f5f2ec","#aad3df","#c8e6c0","#f0e8d0"] },
     mt_basic:     { name:"Basic",      swatch:["#f4f0e8","#b8d4e4","#d8e8c8","#ece4d8"] },
     // Artistic
     mt_aquarelle: { name:"Aquarelle",  swatch:["#f0e8d4","#c8d4b8","#d8c8a8","#e8d8bc"] },
@@ -825,19 +865,84 @@ button {
     mt_winter:    { name:"Winter",     swatch:["#eef4f8","#b8d4e8","#d0e4d0","#f0f0f0"] },
     mt_satellite: { name:"Satellite",  swatch:["#2a3a28","#1e3050","#1a2a18","#202820"] },
     // Dark
-    dark:         { name:"Dark",       swatch:["#111827","#1e3a52","#0f172a","#1e293b"], clean:"dark_nolabels" },
+    dark:         { name:"Dark",       swatch:["#111827","#1e3a52","#0f172a","#1e293b"] },
     mt_dark:      { name:"Dark Viz",   swatch:["#0a0a12","#1a1a2a","#0d0d1a","#111122"] },
     // Minimal/mono
     esri_dark_gray: { name:"Gray Dark",  swatch:["#2a2a2a","#1a1a1a","#3a3a3a","#111111"] },
     mt_backdrop:    { name:"Backdrop",   swatch:["#1a1a1a","#2a2a2a","#111111","#0d0d0d"] },
   };
 
-  // No-label variants (used when "No labels" checkbox is checked + style has a clean key)
-  const NOLABEL_STYLES = {
-    positron_nolabels: true,
-    voyager_nolabels:  true,
-    // mt_dark_nolabels: not a real style (placeholder)
-  };
+  // MapTiler vector style URLs (KEY placeholder replaced at runtime)
+  function getMaptilerStyles(key) {
+    return {
+      positron:           `https://api.maptiler.com/maps/positron/style.json?key=${key}`,
+      voyager:            `https://api.maptiler.com/maps/voyager/style.json?key=${key}`,
+      mt_basic:           `https://api.maptiler.com/maps/basic-v2/style.json?key=${key}`,
+      mt_aquarelle:       `https://api.maptiler.com/maps/aquarelle/style.json?key=${key}`,
+      mt_toner:           `https://api.maptiler.com/maps/toner-v2/style.json?key=${key}`,
+      mt_streets:         `https://api.maptiler.com/maps/streets-v2/style.json?key=${key}`,
+      mt_outdoor:         `https://api.maptiler.com/maps/outdoor-v2/style.json?key=${key}`,
+      mt_topo:            `https://api.maptiler.com/maps/topo-v2/style.json?key=${key}`,
+      mt_winter:          `https://api.maptiler.com/maps/winter-v2/style.json?key=${key}`,
+      mt_satellite:       `https://api.maptiler.com/maps/hybrid/style.json?key=${key}`,
+      dark:               `https://api.maptiler.com/maps/streets-v2-dark/style.json?key=${key}`,
+      mt_dark:            `https://api.maptiler.com/maps/dataviz-dark/style.json?key=${key}`,
+      esri_dark_gray:     `https://api.maptiler.com/maps/basic-v2-dark/style.json?key=${key}`,
+      mt_backdrop:        `https://api.maptiler.com/maps/backdrop/style.json?key=${key}`,
+      // No-label variants
+      // nolabels variants removed — all styles use symbol layer toggling instead
+    };
+  }
+  let MAPTILER_STYLES = {};
+
+  // Hide labels for styles without a native nolabels variant
+  function hideLabels(map) {
+    try {
+      const style = map.getStyle();
+      if (!style || !style.layers) return;
+      style.layers.forEach(layer => {
+        if (layer.type === 'symbol') {
+          try { map.setLayoutProperty(layer.id, 'visibility', 'none'); } catch(e) { /* skip layers not yet ready */ }
+        }
+      });
+    } catch(e) { console.warn('hideLabels error:', e.message); }
+  }
+
+  // Build CSS filter string from process params
+  function buildCssFilter(params) {
+    const parts = [];
+    if (params.invert) parts.push("invert(1)");
+
+    // Black point: compress dynamic range from the shadows up
+    // Maps to a contrast+brightness combo: higher blackPt = darker floor + more contrast
+    const bpNorm = (params.blackPoint || 0) / 200; // 0..1
+    const finalContrast   = params.contrast   * (1 + bpNorm * 0.5);
+    const finalBrightness = params.brightness * (1 - bpNorm * 0.35);
+
+    if (finalContrast !== 1)   parts.push(`contrast(${finalContrast.toFixed(3)})`);
+    if (finalBrightness !== 1) parts.push(`brightness(${finalBrightness.toFixed(3)})`);
+
+    if (params.saturation !== 1) parts.push(`saturate(${params.saturation})`);
+    if (params.hue)              parts.push(`hue-rotate(${params.hue}deg)`);
+    if (params.grayscale)        parts.push("grayscale(1)");
+    return parts.length ? parts.join(" ") : "none";
+  }
+
+  function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return [r, g, b];
+  }
+
+  function applyTint(ctx, w, h, color, amount) {
+    if (!amount) return;
+    const [r, g, b] = hexToRgb(color);
+    ctx.save();
+    ctx.globalAlpha = amount;
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.globalCompositeOperation = "multiply";
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+  }
 
   // ══════════════════════════════════════════════════════════════
   // DOM refs
@@ -847,36 +952,51 @@ button {
   const latInput = $("latInput"), lonInput = $("lonInput");
   const radiusSelect = $("radiusSelect"), generateBtn = $("generateBtn");
   const procContrast = $("procContrast"), procBright = $("procBright"), procSat = $("procSat"), procBlackPt = $("procBlackPt");
-  const procGray = $("procGray"), procInvert = $("procInvert"), procNorm = $("procNorm");
+  const procGray = $("procGray"), procInvert = $("procInvert"), procNorm = { checked: false }; // normalize removed in vector edition
   const procEnable = $("procEnable");
   procEnable.onchange = () => {
     $("procBody").style.display = procEnable.checked ? "" : "none";
+    applyProcessLive(); // re-capture with no-op filters when disabled
     saveToLocalStorage();
   };
 
   // Process slider labels
-  procContrast.oninput = () => { $("procContrastVal").textContent = parseFloat(procContrast.value).toFixed(1) + "×"; saveToLocalStorage(); };
-  procBright.oninput   = () => { $("procBrightVal").textContent   = parseFloat(procBright.value).toFixed(1) + "×"; saveToLocalStorage(); };
-  procBlackPt.oninput  = () => { $("procBlackPtVal").textContent  = procBlackPt.value; saveToLocalStorage(); };
-  procSat.oninput      = () => { $("procSatVal").textContent      = parseFloat(procSat.value).toFixed(1) + "×"; saveToLocalStorage(); };
-  procNorm.onchange    = () => saveToLocalStorage();
-  procGray.onchange    = () => saveToLocalStorage();
-  procInvert.onchange  = () => saveToLocalStorage();
+  const procHue = $("procHue"), procTintColor = $("procTintColor"), procTintAmt = $("procTintAmt");
+
+  function applyProcessLive() {
+    if (!mapLoaded || !mlMap) return;
+    const size = getCanvasSize();
+    captureMapToCanvas(size.w, size.h);
+    updatePreview();
+    saveToLocalStorage();
+  }
+
+  procContrast.oninput = () => { $("procContrastVal").textContent = parseFloat(procContrast.value).toFixed(1) + "×"; applyProcessLive(); };
+  procBright.oninput   = () => { $("procBrightVal").textContent   = parseFloat(procBright.value).toFixed(1) + "×"; applyProcessLive(); };
+  procBlackPt.oninput  = () => { $("procBlackPtVal").textContent  = procBlackPt.value; applyProcessLive(); };
+  procSat.oninput      = () => { $("procSatVal").textContent      = parseFloat(procSat.value).toFixed(1) + "×"; applyProcessLive(); };
+  procHue.oninput      = () => { $("procHueVal").textContent      = procHue.value + "°"; applyProcessLive(); };
+  procTintAmt.oninput  = () => { $("procTintAmtVal").textContent  = Math.round(parseFloat(procTintAmt.value)*100) + "%"; applyProcessLive(); };
+  procTintColor.oninput = () => applyProcessLive();
+  procGray.onchange    = () => applyProcessLive();
+  procInvert.onchange  = () => applyProcessLive();
 
   function getProcParams() {
-    if (!procEnable.checked) return { contrast:1, brightness:1, saturation:1, blackPoint:0, normalize:false, grayscale:false, invert:false };
+    if (!procEnable.checked) return { contrast:1, brightness:1, saturation:1, blackPoint:0, grayscale:false, invert:false, hue:0, tintColor:"#ffffff", tintAmt:0 };
     return {
       contrast:   parseFloat(procContrast.value),
       brightness: parseFloat(procBright.value),
       saturation: parseFloat(procSat.value),
       blackPoint: parseFloat(procBlackPt.value),
-      normalize:  procNorm.checked,
       grayscale:  procGray.checked,
-      invert:     procInvert.checked
+      invert:     procInvert.checked,
+      hue:        parseInt(procHue.value),
+      tintColor:  procTintColor.value,
+      tintAmt:    parseFloat(procTintAmt.value),
     };
   }
 
-  $("procApplyBtn").onclick = () => { if (lastCenter) generate(); };
+  // procApplyBtn removed — process controls are now fully live
   const styleGrid = $("styleGrid");
   const zoomSlider = $("zoomSlider"), zoomVal = $("zoomVal");
   const customW = $("customW"), customH = $("customH");
@@ -1030,7 +1150,7 @@ button {
   const previewWrapper = $("preview-wrapper");
   const matBg = $("mat-bg");
   const matDecoration = $("mat-decoration");
-  const mapLayer = $("map-layer");
+  const mapLayer = $("map-layer");  // now a <canvas>
   const gradientOverlay = $("gradient-overlay");
   const borderOverlay = $("border-overlay");
   const markerLayer = $("marker-layer");
@@ -1058,22 +1178,25 @@ button {
     styleGrid.appendChild(btn);
   });
 
-  // No-labels checkbox
+  // No-labels checkbox — now shows for all styles (MapLibre can filter labels)
   document.getElementById("noLabelsCheck").onchange = () => {
-    updateNoLabelsWarning();
     saveToLocalStorage();
-    if (mapLoaded) generateMap(); // re-fetch with correct nolabels style
+    if (mapLoaded && mlMap) {
+      // Re-render with updated style/labels
+      applyMapStyle();
+    }
   };
 
-  function updateNoLabelsWarning() {
-    const hasClean = STYLES[currentStyle] && STYLES[currentStyle].clean;
-    $("noLabelsRow").style.display = hasClean ? "" : "none";
-  }
+  // Show the no-labels row for all styles (vector can always hide labels)
+  $("noLabelsRow").style.display = "";
 
-  // Also update warning when style changes
-  const _origStyleClick = styleGrid.onclick;
-  styleGrid.addEventListener("click", () => setTimeout(updateNoLabelsWarning, 0));
-  updateNoLabelsWarning(); // set correct state on load
+  // Also re-apply style when style grid is clicked
+  styleGrid.addEventListener("click", () => {
+    setTimeout(() => {
+      if (mapLoaded && mlMap) applyMapStyle();
+    }, 0);
+  });
+  updateShadowControls();
 
   function getEffectiveStyle() {
     const noLabels = document.getElementById("noLabelsCheck").checked;
@@ -1081,6 +1204,41 @@ button {
       return STYLES[currentStyle].clean;
     }
     return currentStyle;
+  }
+
+  // Apply style to MapLibre map (with optional label hiding)
+  function applyMapStyle() {
+    if (!mlMap || !maptilerKey) return;
+    const noLabels = document.getElementById("noLabelsCheck").checked;
+    const hasNativeClean = STYLES[currentStyle] && STYLES[currentStyle].clean;
+    const styleKey = getEffectiveStyle();
+    const styleUrl = MAPTILER_STYLES[styleKey] || MAPTILER_STYLES[currentStyle];
+    if (!styleUrl) return;
+
+    const currentStyleLoaded = mlMap.isStyleLoaded();
+
+    if (noLabels && !hasNativeClean && currentStyleLoaded) {
+      // Style already loaded and no native nolabels variant — just toggle layers
+      hideLabels(mlMap);
+    } else if (!noLabels && !hasNativeClean && currentStyleLoaded) {
+      // Show labels — restore symbol layers
+      try {
+        const style = mlMap.getStyle();
+        if (style && style.layers) {
+          style.layers.forEach(layer => {
+            if (layer.type === 'symbol') {
+              try { mlMap.setLayoutProperty(layer.id, 'visibility', 'visible'); } catch(e) {}
+            }
+          });
+        }
+      } catch(e) {}
+    } else {
+      // Load a different style URL (style switch or native nolabels)
+      mlMap.setStyle(styleUrl);
+      if (noLabels && !hasNativeClean) {
+        mlMap.once('style.load', () => hideLabels(mlMap));
+      }
+    }
   }
 
   // ══════════════════════════════════════════════════════════════
@@ -1135,11 +1293,25 @@ button {
   });
 
   // Mat style buttons
+  const shadowColorEl = $("shadowColor"), shadowOpacityEl = $("shadowOpacity");
+  const shadowBlurElEl = $("shadowBlurEl"), shadowOffXEl = $("shadowOffX"), shadowOffYEl = $("shadowOffY");
+  shadowOpacityEl.oninput = () => { $("shadowOpacityVal").textContent = parseFloat(shadowOpacityEl.value).toFixed(2); updatePreview(); saveToLocalStorage(); };
+  shadowBlurElEl.oninput  = () => { $("shadowBlurVal").textContent  = shadowBlurElEl.value; updatePreview(); saveToLocalStorage(); };
+  shadowOffXEl.oninput    = () => { $("shadowOffXVal").textContent  = shadowOffXEl.value; updatePreview(); saveToLocalStorage(); };
+  shadowOffYEl.oninput    = () => { $("shadowOffYVal").textContent  = shadowOffYEl.value; updatePreview(); saveToLocalStorage(); };
+  shadowColorEl.oninput   = () => { updatePreview(); saveToLocalStorage(); };
+
+  function updateShadowControls() {
+    $("shadowControls").style.display = matStyleVal === "shadow" ? "" : "none";
+  }
+
   document.querySelectorAll(".mat-style-btn").forEach(btn => {
     btn.onclick = () => {
       matStyleVal = btn.dataset.matstyle;
       document.querySelectorAll(".mat-style-btn").forEach(b => b.classList.toggle("active", b.dataset.matstyle === matStyleVal));
+      updateShadowControls();
       updatePreview();
+      saveToLocalStorage();
     };
   });
 
@@ -1214,7 +1386,7 @@ button {
   // ══════════════════════════════════════════════════════════════
   $("addMarkerBtn").onclick = () => {
     openIconPicker(ic => {
-      const marker = { id: Date.now(), icon: ic.name, unicode: ic.unicode, label: "", color: "#ffffff", x: 50, y: 50, glowEnable: false, glowColor: "#ffffff", glowSize: 10, glowOpacity: 0.8 };
+      const marker = { id: Date.now(), icon: ic.name, unicode: ic.unicode, label: "", color: "#ffffff", x: 50, y: 50, size: 24, glowEnable: false, glowColor: "#ffffff", glowSize: 10, glowOpacity: 0.8 };
       markers.push(marker);
       markerListEl.appendChild(createMarkerCard(marker));
       updatePreview();
@@ -1241,13 +1413,19 @@ button {
       <div class="marker-card-pos">
         <label>Y</label><input type="range" class="marker-y" min="0" max="100" value="${marker.y}"><span class="marker-y-val">${marker.y}%</span>
       </div>
-      <div class="marker-card-pos" style="align-items:center;gap:5px;flex-wrap:wrap;">
-        <label class="check-row" style="margin:0;gap:4px;font-size:11px;"><input type="checkbox" class="marker-glow-enable" ${marker.glowEnable ? "checked" : ""}> Glow</label>
-        <input type="color" class="marker-glow-color" value="${marker.glowColor}" style="width:32px;height:24px;padding:1px;">
-        <input type="range" class="marker-glow-size" min="0" max="40" step="1" value="${marker.glowSize}" style="width:55px;" title="Blur">
-        <span class="marker-glow-size-val" style="font-size:10px;min-width:18px;">${marker.glowSize}</span>
-        <input type="range" class="marker-glow-opacity" min="0" max="1" step="0.05" value="${marker.glowOpacity}" style="width:45px;" title="Opacity">
-        <span class="marker-glow-opacity-val" style="font-size:10px;min-width:22px;">${marker.glowOpacity}</span>
+      <div class="marker-card-pos">
+        <label>Sz</label><input type="range" class="marker-size" min="12" max="72" step="2" value="${marker.size||24}"><span class="marker-size-val" style="font-size:10px;">${marker.size||24}</span>
+      </div>
+      <div class="marker-card-pos" style="grid-template-columns:auto 1fr 34px;margin-top:2px;">
+        <label class="check-row" style="margin:0;gap:4px;font-size:11px;white-space:nowrap;"><input type="checkbox" class="marker-glow-enable" ${marker.glowEnable ? "checked" : ""}> Glow</label>
+        <input type="color" class="marker-glow-color" value="${marker.glowColor}" style="width:32px;height:24px;padding:1px;margin:0 4px;">
+        <span></span>
+      </div>
+      <div class="marker-card-pos">
+        <label>Blur</label><input type="range" class="marker-glow-size" min="0" max="40" step="1" value="${marker.glowSize}"><span class="marker-glow-size-val" style="font-size:10px;">${marker.glowSize}</span>
+      </div>
+      <div class="marker-card-pos">
+        <label>Opac</label><input type="range" class="marker-glow-opacity" min="0" max="1" step="0.05" value="${marker.glowOpacity}"><span class="marker-glow-opacity-val" style="font-size:10px;">${marker.glowOpacity}</span>
       </div>
     `;
     card.querySelector(".marker-label-input").value = marker.label;
@@ -1259,6 +1437,7 @@ button {
     xSlider.oninput = e => { marker.x = parseInt(e.target.value); card.querySelector(".marker-x-val").textContent = marker.x + "%"; updatePreview(); saveToLocalStorage(); };
     ySlider.oninput = e => { marker.y = parseInt(e.target.value); card.querySelector(".marker-y-val").textContent = marker.y + "%"; updatePreview(); saveToLocalStorage(); };
     // Glow controls
+    card.querySelector(".marker-size").oninput = e => { marker.size = parseInt(e.target.value); card.querySelector(".marker-size-val").textContent = marker.size; updatePreview(); saveToLocalStorage(); };
     card.querySelector(".marker-glow-enable").onchange = e => { marker.glowEnable = e.target.checked; updatePreview(); saveToLocalStorage(); };
     card.querySelector(".marker-glow-color").oninput  = e => { marker.glowColor = e.target.value; updatePreview(); saveToLocalStorage(); };
     card.querySelector(".marker-glow-size").oninput   = e => { marker.glowSize = parseInt(e.target.value); card.querySelector(".marker-glow-size-val").textContent = marker.glowSize; updatePreview(); saveToLocalStorage(); };
@@ -1470,10 +1649,15 @@ button {
         pointer-events:none;`;
       matDecoration.appendChild(inner);
     } else if (matStyleVal === "shadow") {
-      // Shadow on the map area
+      const sColor = shadowColorEl.value;
+      const sOp = parseFloat(shadowOpacityEl.value);
+      const sBlur = parseInt(shadowBlurElEl.value);
+      const sX = parseInt(shadowOffXEl.value);
+      const sY = parseInt(shadowOffYEl.value);
+      const sRgba = hexToRgba(sColor, sOp);
       matDecoration.style.cssText = `position:absolute; z-index:0; pointer-events:none;
         top:${mT}px; left:${mL}px; width:${size.w}px; height:${size.h}px;
-        box-shadow: 5px 5px 15px rgba(0,0,0,0.3); background:${matColor.value};`;
+        box-shadow: ${sX}px ${sY}px ${sBlur}px ${sRgba}; background:${matColor.value};`;
     } else if (matStyleVal === "inset" && Math.min(mT,mR,mB,mL) > 6) {
       const inner = document.createElement("div");
       inner.style.cssText = `position:absolute; border:1px solid rgba(0,0,0,0.15);
@@ -1637,10 +1821,11 @@ button {
       const wrap = document.createElement("div");
       wrap.style.cssText = `position:absolute; left:${m.x}%; top:${m.y}%; transform:translate(-50%,-50%); text-align:center; pointer-events:none;`;
       const glowStyle = m.glowEnable ? `filter:drop-shadow(0 0 ${m.glowSize}px ${hexToRgba(m.glowColor, m.glowOpacity)}) drop-shadow(0 0 ${m.glowSize * 2}px ${hexToRgba(m.glowColor, m.glowOpacity * 0.5)});` : "";
-      wrap.innerHTML = `<i class="fa-solid fa-${m.icon}" style="font-size:24px; color:${m.color}; ${glowStyle}"></i>`;
+      wrap.innerHTML = `<i class="fa-solid fa-${m.icon}" style="font-size:${m.size||24}px; color:${m.color}; ${glowStyle}"></i>`;
       if (m.label) {
         const lbl = document.createElement("div");
-        lbl.style.cssText = `font-size:10px; color:${m.color}; margin-top:2px; white-space:nowrap;`;
+        const lblSize = Math.max(9, Math.round((m.size||24) * 0.4));
+        lbl.style.cssText = `font-size:${lblSize}px; color:${m.color}; margin-top:2px; white-space:nowrap;`;
         lbl.textContent = m.label;
         wrap.appendChild(lbl);
       }
@@ -1713,7 +1898,76 @@ button {
   }
 
   // ══════════════════════════════════════════════════════════════
-  // Generate: fetch map tile → show live preview
+  // Fetch MapTiler key from server
+  // ══════════════════════════════════════════════════════════════
+  async function fetchConfig() {
+    const res = await fetch("/api/config");
+    const data = await res.json();
+    maptilerKey = data.maptilerKey;
+    MAPTILER_STYLES = getMaptilerStyles(maptilerKey);
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Initialize MapLibre GL map (once)
+  // ══════════════════════════════════════════════════════════════
+  function initMap(styleUrl, center, zoom, width, height) {
+    const container = $("maplibre-container");
+    container.style.width = width + "px";
+    container.style.height = height + "px";
+
+    if (mlMap) {
+      mlMap.remove();
+      mlMap = null;
+    }
+
+    mlMap = new maplibregl.Map({
+      container: container,
+      style: styleUrl,
+      center: [center.lon, center.lat],
+      zoom: zoom,
+      interactive: false,
+      preserveDrawingBuffer: true,
+      attributionControl: false,
+      fadeDuration: 0,
+      pixelRatio: 1,
+    });
+
+    return mlMap;
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Capture MapLibre canvas to our preview canvas
+  // ══════════════════════════════════════════════════════════════
+  function captureMapToCanvas(width, height) {
+    const glCanvas = mlMap.getCanvas();
+    mapLayer.width = width;
+    mapLayer.height = height;
+    const ctx = mapLayer.getContext("2d");
+    // Apply CSS filters for process params
+    const proc = getProcParams();
+    ctx.filter = buildCssFilter(proc);
+    ctx.drawImage(glCanvas, 0, 0, width, height);
+    ctx.filter = "none";
+    applyTint(ctx, width, height, proc.tintColor, proc.tintAmt);
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Wait for map to fully render
+  // ══════════════════════════════════════════════════════════════
+  function waitForMapIdle(map) {
+    return new Promise(resolve => {
+      if (map.loaded() && map.isStyleLoaded() && !map.isMoving()) {
+        // Give an extra frame for tiles to finish
+        map.once('idle', resolve);
+        map.triggerRepaint();
+      } else {
+        map.once('idle', resolve);
+      }
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // Generate: render vector map → capture to canvas → show preview
   // ══════════════════════════════════════════════════════════════
   async function generate() {
     generateBtn.disabled = true;
@@ -1723,6 +1977,9 @@ button {
     previewWrapper.style.display = "none";
 
     try {
+      // 0. Ensure MapTiler key is loaded
+      if (!maptilerKey) await fetchConfig();
+
       // 1. Geocode
       const geo = await geocodeLocation();
       lastCenter = geo.center;
@@ -1735,31 +1992,30 @@ button {
       const zoom = getActualZoom();
       const size = getCanvasSize();
 
-      // 4. Fetch rendered map PNG from server
-      const resp = await fetch("/api/render", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lat: lastCenter.lat, lon: lastCenter.lon,
-          zoom, width: size.w, height: size.h, style: getEffectiveStyle(), ...getProcParams()
-        })
-      });
+      // 4. Get style URL
+      const styleKey = getEffectiveStyle();
+      const styleUrl = MAPTILER_STYLES[styleKey] || MAPTILER_STYLES[currentStyle];
+      if (!styleUrl) throw new Error("Unknown style: " + styleKey);
 
-      if (!resp.ok) {
-        let msg = "Map render failed";
-        try { const err = await resp.json(); msg = err.error || msg; } catch(e) {}
-        throw new Error(msg);
-      }
+      // 5. Initialize MapLibre map
+      const map = initMap(styleUrl, lastCenter, zoom, size.w, size.h);
 
-      const blob = await resp.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      // 5. Set as img src
+      // Wait for load
       await new Promise((resolve, reject) => {
-        mapLayer.onload = resolve;
-        mapLayer.onerror = () => reject(new Error("Failed to load map image"));
-        mapLayer.src = blobUrl;
+        map.once('error', e => reject(new Error(e.error || "Map load error")));
+        map.on('load', resolve);
       });
+
+      // Hide labels if needed (for styles without native nolabels)
+      const noLabels = document.getElementById("noLabelsCheck").checked;
+      const hasNativeClean = STYLES[currentStyle] && STYLES[currentStyle].clean;
+      if (noLabels && !hasNativeClean) hideLabels(map);
+
+      // Wait for all tiles to render
+      await waitForMapIdle(map);
+
+      // 6. Capture to canvas
+      captureMapToCanvas(size.w, size.h);
 
       mapLoaded = true;
       previewWrapper.style.display = "block";
@@ -1770,9 +2026,10 @@ button {
         b.style.color = "var(--text2)";
         b.style.borderColor = "var(--input-border)";
       });
+      const svgBtn = $("svgBtn");
+      if (svgBtn) { svgBtn.disabled = false; svgBtn.style.opacity = "1"; }
 
-
-      // 6. Update live preview + save settings
+      // 7. Update live preview + save settings
       updatePreview();
       saveToLocalStorage();
 
@@ -1800,15 +2057,15 @@ button {
   // Download size configs
   // ══════════════════════════════════════════════════════════════
   const DL_SIZES = {
-    // scale applies to base 1200px map; zoomBoost adds detail
-    print:  { label: "print",  zoomBoost: 2, scale: 5, tileLimit: 225 }, // 6000px (square) → 24×36 @250dpi
-    high:   { label: "high",   zoomBoost: 1, scale: 4, tileLimit: 144 }, // 4800px
-    medium: { label: "medium", zoomBoost: 0, scale: 2, tileLimit: 64 },  // 2400px
-    low:    { label: "low",    zoomBoost: 0, scale: 1, tileLimit: 36 },  // 1200px
+    // scale applies to base canvas size; vector tiles stay sharp at any resolution
+    print:  { label: "print",  scale: 5 }, // 6000px (square) → 24×36 @250dpi
+    high:   { label: "high",   scale: 4 }, // 4800px
+    medium: { label: "medium", scale: 2 }, // 2400px
+    low:    { label: "low",    scale: 1 }, // 1200px
   };
 
   async function downloadAtSize(sizeKey) {
-    if (!mapLoaded || !lastCenter) return;
+    if (!mapLoaded || !lastCenter || !mlMap) return;
     const cfg = DL_SIZES[sizeKey];
     const btn = document.querySelector(`.dl-size-btn[data-size="${sizeKey}"]`);
     const origText = btn.innerHTML;
@@ -1819,30 +2076,46 @@ button {
       const baseSize = getCanvasSize();
       const mapW = baseSize.w * cfg.scale;
       const mapH = baseSize.h * cfg.scale;
-      const zoom = Math.min(16, getActualZoom() + cfg.zoomBoost);
 
-      // Fetch higher-res tile render
-      const resp = await fetch("/api/render", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lat: lastCenter.lat, lon: lastCenter.lon,
-          zoom, width: mapW, height: mapH,
-          style: getEffectiveStyle(), tileLimit: cfg.tileLimit,
-          ...getProcParams()
-        })
-      });
-      if (!resp.ok) throw new Error("Render failed");
-      const blob = await resp.blob();
-      const blobUrl = URL.createObjectURL(blob);
+      // Save current view state
+      const savedCenter = mlMap.getCenter();
+      const savedZoom = mlMap.getZoom();
+      const savedBearing = mlMap.getBearing();
+      const savedPitch = mlMap.getPitch();
 
-      // Load the hi-res map image
-      const hiresImg = new Image();
-      await new Promise((res, rej) => { hiresImg.onload = res; hiresImg.onerror = rej; hiresImg.src = blobUrl; });
+      // Resize MapLibre container to target dimensions
+      const container = $("maplibre-container");
+      const origW = container.style.width;
+      const origH = container.style.height;
+      container.style.width = mapW + "px";
+      container.style.height = mapH + "px";
+      mlMap.resize();
 
-      // Composite at full size
-      const outputCanvas = await compositeToCanvas(hiresImg, mapW, mapH, cfg.scale);
-      URL.revokeObjectURL(blobUrl);
+      // Jump back to exact same view (resize changes viewport, not zoom)
+      mlMap.jumpTo({ center: savedCenter, zoom: savedZoom, bearing: savedBearing, pitch: savedPitch });
+      await waitForMapIdle(mlMap);
+
+      // Capture the hi-res WebGL canvas
+      const glCanvas = mlMap.getCanvas();
+      const hiresCanvas = document.createElement("canvas");
+      hiresCanvas.width = mapW;
+      hiresCanvas.height = mapH;
+      const hctx = hiresCanvas.getContext("2d");
+      // Apply process filters
+      const proc = getProcParams();
+      hctx.filter = buildCssFilter(proc);
+      hctx.drawImage(glCanvas, 0, 0, mapW, mapH);
+      hctx.filter = "none";
+      applyTint(hctx, mapW, mapH, proc.tintColor, proc.tintAmt);
+
+      // Restore original MapLibre size and view
+      container.style.width = origW;
+      container.style.height = origH;
+      mlMap.resize();
+      mlMap.jumpTo({ center: savedCenter, zoom: savedZoom, bearing: savedBearing, pitch: savedPitch });
+
+      // Composite at full size (pass canvas as image source)
+      const outputCanvas = await compositeToCanvas(hiresCanvas, mapW, mapH, cfg.scale);
 
       // Use toDataURL for Safari compatibility (toBlob loses gesture context)
       const dataUrl = outputCanvas.toDataURL("image/png");
@@ -1897,13 +2170,17 @@ button {
       const inset = 0.3;
       ctx.strokeRect(mL*inset, mT*inset, totalW - mL*inset*2, totalH - mT*inset*2);
     } else if (matStyleVal === "shadow") {
-      ctx.shadowColor = "rgba(0,0,0,0.3)";
-      ctx.shadowBlur = 15 * scale;
-      ctx.shadowOffsetX = 5 * scale;
-      ctx.shadowOffsetY = 5 * scale;
+      ctx.shadowColor = hexToRgba(shadowColorEl.value, parseFloat(shadowOpacityEl.value));
+      ctx.shadowBlur = parseInt(shadowBlurElEl.value) * scale;
+      ctx.shadowOffsetX = parseInt(shadowOffXEl.value) * scale;
+      ctx.shadowOffsetY = parseInt(shadowOffYEl.value) * scale;
       ctx.fillStyle = matColor.value;
       ctx.fillRect(mL, mT, mapW, mapH);
+      // Reset all shadow props fully so text/markers don't inherit them
       ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
     } else if (matStyleVal === "inset" && Math.min(mT,mR,mB,mL) > 6 * scale) {
       ctx.strokeStyle = "rgba(0,0,0,0.15)";
       ctx.lineWidth = 1 * scale;
@@ -1997,7 +2274,7 @@ button {
     // ── Markers ──
     markers.forEach(m => {
       ctx.save();
-      ctx.font = `900 ${32 * scale}px "Font Awesome 6 Free"`;
+      ctx.font = `900 ${(m.size||24) * scale}px "Font Awesome 6 Free"`;
       ctx.fillStyle = m.color;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -2013,7 +2290,7 @@ button {
       ctx.fillText(icon ? icon.unicode : "", mx, my);
       ctx.shadowBlur = 0; ctx.shadowColor = "transparent";
       if (m.label) {
-        ctx.font = `600 ${14 * scale}px Arial, sans-serif`;
+        ctx.font = `600 ${Math.max(9, Math.round((m.size||24) * 0.4)) * scale}px Arial, sans-serif`;
         ctx.fillText(m.label, mx, my + 22 * scale);
       }
       ctx.restore();
@@ -2116,6 +2393,7 @@ button {
     p.set("ml", matLeft.value);
     p.set("mc", matColor.value);
     p.set("mst", matStyleVal);
+    if (matStyleVal === "shadow") { p.set("shc", shadowColorEl.value); p.set("sho", shadowOpacityEl.value); p.set("shb", shadowBlurElEl.value); p.set("shx", shadowOffXEl.value); p.set("shy", shadowOffYEl.value); }
     p.set("mlink", matLink.checked ? "1" : "0");
 
     // Border
@@ -2131,7 +2409,8 @@ button {
     if (procEnable.checked) p.set("proc", "1");
     p.set("pcon", procContrast.value); p.set("pbri", procBright.value); p.set("psat", procSat.value);
     p.set("pblk", procBlackPt.value);
-    if (procNorm.checked)   p.set("pnorm",  "1");
+    if (parseInt(procHue.value)) p.set("phue", procHue.value);
+    if (parseFloat(procTintAmt.value) > 0) { p.set("ptc", procTintColor.value); p.set("pta", procTintAmt.value); }
     if (procGray.checked)   p.set("pgray",  "1");
     if (procInvert.checked) p.set("pinv",   "1");
 
@@ -2186,7 +2465,7 @@ button {
     p.set("sepC", sepColor.value);
 
     // Markers
-    if (markers.length) p.set("markers", JSON.stringify(markers.map(m => ({i:m.icon,l:m.label,c:m.color,x:m.x,y:m.y,ge:m.glowEnable?1:0,gc:m.glowColor,gs:m.glowSize,go:m.glowOpacity}))));
+    if (markers.length) p.set("markers", JSON.stringify(markers.map(m => ({i:m.icon,l:m.label,c:m.color,x:m.x,y:m.y,sz:m.size||24,ge:m.glowEnable?1:0,gc:m.glowColor,gs:m.glowSize,go:m.glowOpacity}))));
 
     return window.location.origin + window.location.pathname + "?" + p.toString();
   }
@@ -2235,7 +2514,13 @@ button {
     if (p.has("mst")) {
       matStyleVal = p.get("mst");
       document.querySelectorAll(".mat-style-btn").forEach(b => b.classList.toggle("active", b.dataset.matstyle === matStyleVal));
+      updateShadowControls();
     }
+    if (p.has("shc")) shadowColorEl.value = p.get("shc");
+    if (p.has("sho")) { shadowOpacityEl.value = p.get("sho"); $("shadowOpacityVal").textContent = parseFloat(p.get("sho")).toFixed(2); }
+    if (p.has("shb")) { shadowBlurElEl.value = p.get("shb"); $("shadowBlurVal").textContent = p.get("shb"); }
+    if (p.has("shx")) { shadowOffXEl.value = p.get("shx"); $("shadowOffXVal").textContent = p.get("shx"); }
+    if (p.has("shy")) { shadowOffYEl.value = p.get("shy"); $("shadowOffYVal").textContent = p.get("shy"); }
     if (p.has("mlink")) matLink.checked = p.get("mlink") === "1";
 
     // Border
@@ -2270,8 +2555,11 @@ button {
     if (p.has("pbri"))  { procBright.value   = p.get("pbri"); $("procBrightVal").textContent   = parseFloat(p.get("pbri")).toFixed(1) + "×"; }
     if (p.has("psat"))  { procSat.value      = p.get("psat"); $("procSatVal").textContent      = parseFloat(p.get("psat")).toFixed(1) + "×"; }
     if (p.has("pblk"))  { procBlackPt.value  = p.get("pblk"); $("procBlackPtVal").textContent  = p.get("pblk"); }
-    if (p.has("pnorm")) procNorm.checked   = p.get("pnorm")  === "1";
+    // pnorm removed in vector edition
     if (p.has("pgray")) procGray.checked   = p.get("pgray")  === "1";
+    if (p.has("phue")) { procHue.value = p.get("phue"); $("procHueVal").textContent = p.get("phue") + "°"; }
+    if (p.has("ptc")) procTintColor.value = p.get("ptc");
+    if (p.has("pta")) { procTintAmt.value = p.get("pta"); $("procTintAmtVal").textContent = Math.round(parseFloat(p.get("pta"))*100) + "%"; }
     if (p.has("pinv"))  procInvert.checked = p.get("pinv")   === "1";
     // Auto-expand Process if any non-default values present
     const procActive = (parseFloat(p.get("pcon")||1)!==1||parseFloat(p.get("pbri")||1)!==1||parseFloat(p.get("psat")||1)!==1||parseFloat(p.get("pblk")||0)!==0||p.get("pnorm")==="1"||p.get("pgray")==="1"||p.get("pinv")==="1"||p.has("proc"));
@@ -2372,7 +2660,7 @@ button {
         arr.forEach(m => {
           const icon = FA_ICONS.find(i => i.name === m.i);
           if (!icon) return;
-          markers.push({ id: Date.now() + Math.random(), icon: icon.name, unicode: icon.unicode, label: String(m.l || "").slice(0, 50), color: /^#[0-9a-fA-F]{6}$/.test(m.c) ? m.c : "#ffffff", x: Math.max(0, Math.min(100, Number(m.x) || 50)), y: Math.max(0, Math.min(100, Number(m.y) || 50)), glowEnable: !!m.ge, glowColor: /^#[0-9a-fA-F]{6}$/.test(m.gc) ? m.gc : "#ffffff", glowSize: Math.max(0, Math.min(40, Number(m.gs) || 10)), glowOpacity: Math.max(0, Math.min(1, Number(m.go) || 0.8)) });
+          markers.push({ id: Date.now() + Math.random(), icon: icon.name, unicode: icon.unicode, label: String(m.l || "").slice(0, 50), color: /^#[0-9a-fA-F]{6}$/.test(m.c) ? m.c : "#ffffff", x: Math.max(0, Math.min(100, Number(m.x) || 50)), y: Math.max(0, Math.min(100, Number(m.y) || 50)), size: Math.max(12, Math.min(72, Number(m.sz) || 24)), glowEnable: !!m.ge, glowColor: /^#[0-9a-fA-F]{6}$/.test(m.gc) ? m.gc : "#ffffff", glowSize: Math.max(0, Math.min(40, Number(m.gs) || 10)), glowOpacity: Math.max(0, Math.min(1, Number(m.go) || 0.8)) });
         });
         markerListEl.innerHTML = "";
         markers.forEach(m => markerListEl.appendChild(createMarkerCard(m)));
@@ -2444,17 +2732,121 @@ button {
   };
 
   // ══════════════════════════════════════════════════════════════
+  // SVG Export — hybrid SVG with embedded map PNG + vector overlays
+  // ══════════════════════════════════════════════════════════════
+  async function exportSVG() {
+    if (!mapLoaded || !mlMap) return;
+    const btn = $("svgBtn");
+    btn.textContent = "Building…";
+    btn.disabled = true;
+    try {
+      const size = getCanvasSize();
+      const mT = parseInt(matTop.value)||0, mR = parseInt(matRight.value)||0;
+      const mB = parseInt(matBottom.value)||0, mL = parseInt(matLeft.value)||0;
+      const bw = parseInt(borderWidthEl.value)||0;
+      const totalW = size.w + mL + mR;
+      const totalH = size.h + mT + mB;
+
+      // Capture map as base64 PNG
+      const glCanvas = mlMap.getCanvas();
+      const mapCanvas = document.createElement("canvas");
+      mapCanvas.width = size.w; mapCanvas.height = size.h;
+      const mctx = mapCanvas.getContext("2d");
+      const proc = getProcParams();
+      mctx.filter = buildCssFilter(proc);
+      mctx.drawImage(glCanvas, 0, 0, size.w, size.h);
+      mctx.filter = "none";
+      applyTint(mctx, size.w, size.h, proc.tintColor, proc.tintAmt);
+      const mapDataUrl = mapCanvas.toDataURL("image/png");
+
+      // Build SVG
+      const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      const matFill = matColor.value;
+      let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalW}" height="${totalH}" viewBox="0 0 ${totalW} ${totalH}">`;
+
+      // Mat background
+      svg += `<rect width="${totalW}" height="${totalH}" fill="${matFill}"/>`;
+
+      // Map image
+      svg += `<image href="${mapDataUrl}" x="${mL}" y="${mT}" width="${size.w}" height="${size.h}"/>`;
+
+      // Border
+      if (bw > 0) {
+        svg += `<rect x="${mL + bw/2}" y="${mT + bw/2}" width="${size.w - bw}" height="${size.h - bw}" fill="none" stroke="${borderColorEl.value}" stroke-width="${bw}"/>`;
+      }
+
+      // Gradient overlay (approximate as SVG gradient)
+      if (gradEnable.checked) {
+        const gc = gradC1.value, go = parseFloat(gradO1.value);
+        const reach = parseInt(gradReach.value) / 100;
+        if (gradEdge === "vignette") {
+          svg += `<defs><radialGradient id="vg" cx="50%" cy="50%" r="${(reach*80).toFixed(0)}%"><stop offset="0%" stop-color="${gc}" stop-opacity="0"/><stop offset="100%" stop-color="${gc}" stop-opacity="${go}"/></radialGradient></defs>`;
+          svg += `<rect x="${mL}" y="${mT}" width="${size.w}" height="${size.h}" fill="url(#vg)"/>`;
+        } else {
+          const dirs = {bottom:"0% 100%, 0% 0%", top:"0% 0%, 0% 100%", left:"0% 0%, 100% 0%", right:"100% 0%, 0% 0%"};
+          const [x1y1, x2y2] = (dirs[gradEdge]||dirs.bottom).split(", ");
+          svg += `<defs><linearGradient id="lg" x1="${x1y1.split(' ')[0]}" y1="${x1y1.split(' ')[1]}" x2="${x2y2.split(' ')[0]}" y2="${x2y2.split(' ')[1]}"><stop offset="0%" stop-color="${gc}" stop-opacity="${go}"/><stop offset="${(reach*100).toFixed(0)}%" stop-color="${gc}" stop-opacity="0"/></linearGradient></defs>`;
+          svg += `<rect x="${mL}" y="${mT}" width="${size.w}" height="${size.h}" fill="url(#lg)"/>`;
+        }
+      }
+
+      // Text elements
+      function addText(text, visible, opts) {
+        if (!visible || !text) return;
+        const t = opts.uppercase ? text.toUpperCase() : text;
+        const x = (opts.xPct / 100) * totalW;
+        const y = (opts.yPct / 100) * totalH;
+        const anchor = opts.align === "left" ? "start" : opts.align === "right" ? "end" : "middle";
+        const glowAttr = opts.glow ? `filter="url(#glow_${opts.id})"` : "";
+        if (opts.glow) {
+          const g = opts.glow;
+          svg += `<defs><filter id="glow_${opts.id}"><feGaussianBlur stdDeviation="${g.size*0.5}" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+        }
+        svg += `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-family="${esc(opts.font)}" font-size="${opts.size}" font-weight="${opts.weight}" fill="${opts.color}" opacity="${opts.opacity||1}" text-anchor="${anchor}" letter-spacing="${opts.spacing||0}" ${glowAttr}>${esc(t)}</text>`;
+      }
+
+      addText(titleInput.value, titleVisible, { id:"t1", size: parseInt(titleSize.value)||36, color: titleColor.value, weight: titleWeight.value, spacing: parseInt(titleSpacing.value)||0, xPct: parseInt(titleX.value), yPct: parseInt(titleY.value), align: titleAlign, uppercase: titleUC.checked, font: titleFont.value, opacity: parseFloat(titleOpacity.value), glow: titleGlowEnable.checked ? { color: titleGlowColor.value, size: parseInt(titleGlowSize.value), opacity: parseFloat(titleGlowOpacity.value) } : null });
+      addText(subtitleInput.value, subtitleVisible, { id:"t2", size: parseInt(subtitleSize.value)||14, color: subtitleColor.value, weight: subtitleWeight.value, spacing: parseInt(subtitleSpacing.value)||0, xPct: parseInt(subtitleX.value), yPct: parseInt(subtitleY.value), align: subtitleAlign, uppercase: subtitleUC.checked, font: subtitleFont.value, opacity: parseFloat(subtitleOpacity.value), glow: subtitleGlowEnable.checked ? { color: subtitleGlowColor.value, size: parseInt(subtitleGlowSize.value), opacity: parseFloat(subtitleGlowOpacity.value) } : null });
+      addText(coordsInput.value, coordsVisible, { id:"t3", size: parseInt(coordsSize.value)||12, color: coordsColor.value, weight: coordsWeight.value, spacing: parseInt(coordsSpacing.value)||0, xPct: parseInt(coordsX.value), yPct: parseInt(coordsY.value), align: coordsAlign, uppercase: coordsUCEl.checked, font: coordsFont.value, opacity: parseFloat(coordsOpacity.value), glow: coordsGlowEnable.checked ? { color: coordsGlowColor.value, size: parseInt(coordsGlowSize.value), opacity: parseFloat(coordsGlowOpacity.value) } : null });
+
+      svg += `</svg>`;
+
+      // Download
+      const blob = new Blob([svg], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const titleSlug = (titleInput.value||"mapframe").trim().replace(/\s+/g,"_").replace(/[^\w-]/g,"");
+      a.download = `${titleSlug}.svg`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch(e) {
+      alert("SVG export failed: " + e.message);
+    } finally {
+      btn.textContent = "■ SVG";
+      btn.disabled = false;
+    }
+  }
+
+  const svgBtnEl = $("svgBtn");
+  if (svgBtnEl) svgBtnEl.onclick = exportSVG;
+
+  // ══════════════════════════════════════════════════════════════
   // Load from URL on startup (URL params take priority over localStorage)
   // ══════════════════════════════════════════════════════════════
+  // Load config eagerly, then auto-generate if URL/localStorage has settings
   let shouldAutoGen = false;
   if (window.location.search) {
     shouldAutoGen = loadFromURL();
   } else {
     shouldAutoGen = loadFromLocalStorage();
   }
-  if (shouldAutoGen) {
-    setTimeout(generate, 300);
-  }
+  // Pre-fetch MapTiler key, then auto-generate if needed
+  fetchConfig().then(() => {
+    if (shouldAutoGen) {
+      setTimeout(generate, 300);
+    }
+  }).catch(e => console.error("Failed to fetch config:", e));
 })();
 </script>
 </body>
